@@ -1,0 +1,276 @@
+---
+title: "Weevils"
+author: "John Godlee"
+date: "18/07/2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+
+knitr::opts_chunk$set(fig.align = "center")
+```
+
+# Preamble
+
+```{r message = FALSE, error = FALSE}
+library(ggplot2)
+library(viridis)
+library(dplyr)
+library(gstat)
+library(nlme)
+library(pander)
+library(MuMIn)
+library(lme4)
+```
+
+
+```{r}
+damage <- read.csv("data/damage.csv")
+```
+
+# Basic exploratory plots
+
+## Boxplots of lesions by Scot's Pine population
+
+Lesions from this year (2015)
+
+```{r}
+ggplot(damage, aes(x = population, y = curr_damage)) + 
+	geom_boxplot() + 
+	labs(x = "Population",
+			 y = "Number of lesions in 2015") +
+	theme_classic()
+```
+
+Zero inflation makes any patterns hard to see.
+
+Previous lesions only 
+
+```{r}
+ggplot(damage, aes(x = population, y = prev_damage)) + 
+	geom_boxplot() + 
+	labs(x = "Population",
+			 y = "Number of old lesions") +
+	theme_classic()
+```
+
+All lesions 
+
+```{r}
+ggplot(damage, aes(x = population, y = total_damage)) + 
+	geom_boxplot() + 
+	labs(x = "Population",
+			 y = "Total number of lesions") +
+	theme_classic()
+```
+
+## Exploring spatial patterns in data 
+
+Are the populations randomly placed on the grid?
+
+```{r fig.width=14}
+ggplot(damage, aes(x = x_coord, y = y_coord)) + 
+	geom_point(aes(colour = population)) + 
+	coord_equal() + 
+	theme_classic() + 
+		theme(legend.position = "bottom") 
+```
+
+
+Spatial autocorrelation in total number of lesions:
+
+```{r fig.width=14}
+ggplot(damage, aes(x = x_coord, y = y_coord)) + 
+	geom_point(aes(colour = total_damage, size = total_damage)) + 
+	scale_colour_viridis(name = "No. lesions") + 
+	scale_size_continuous(guide = FALSE) + 
+	coord_equal() + 
+	theme_classic() + 
+	theme(legend.position = "bottom") 
+
+```
+
+Spatial autocorrelation in fresh lesions (this year):
+
+```{r fig.width=14}
+ggplot(damage, aes(x = x_coord, y = y_coord)) + 
+	geom_point(aes(colour = total_damage, size = curr_damage)) + 
+	scale_colour_viridis(name = "No. lesions (2015)") + 
+	scale_size_continuous(guide = FALSE) + 
+	coord_equal() + 
+	theme_classic() + 
+	theme(legend.position = "bottom") 
+```
+
+The weevil damage seems to be clustered in certain areas, possibly the saplings are interacting with each other, with some attracting the weevils and others becoming infected consequentially. The spatial autocorrelation seems to be less pronounced in this year's lesions than previous years.
+
+# Testing for spatial autocorrelation
+
+```{r}
+curr_dam_semivar <- variogram(log1p(curr_damage)~1, data = damage, locations = ~x_coord+y_coord)
+
+plot(curr_dam_semivar)
+```
+
+Spatial autocorrelation is pretty strong across the range of distances, but is this just because there are lots of zero points?
+
+Removing zero points:
+
+```{r}
+damage_no_zero <- damage %>%
+	filter(curr_damage > 0)
+```
+
+```{r}
+curr_dam_no_zero_semivar <- variogram(log1p(curr_damage)~1, data = damage_no_zero, locations = ~x_coord+y_coord)
+plot(curr_dam_no_zero_semivar)
+```
+
+Autocorrelation is still very high when points with zeroes are excluded. There is certainly no sill present.
+
+# Work spatial structure into a GLM 
+
+Basic Generalised Least Squares model and outputs:
+
+```{r}
+tot_pop_gls <- gls(log1p(curr_damage) ~ population , data = damage)
+vario2 <- Variogram(tot_pop_gls, form = ~x_coord + y_coord, resType = "pearson")
+plot(vario2, smooth = TRUE)
+```
+
+Construct lots of models with different spatial correlation structures, then compare with AIC:
+
+```{r}
+m1 <- gls(log1p(curr_damage) ~ population, correlation = corExp(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+
+m2 <- gls(log1p(curr_damage) ~ population, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+
+m2_no_nugget <- gls(log1p(curr_damage) ~ population, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = FALSE), data = damage)
+
+m3 <- gls(log1p(curr_damage) ~ population, correlation = corSpher(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+
+m4 <- gls(log1p(curr_damage) ~ population, correlation = corLin(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+
+m5 <- gls(log1p(curr_damage) ~ population, correlation = corRatio(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+
+m_null <- gls(log1p(curr_damage) ~ 1, data = damage)
+
+aic_table <- data.frame(AIC(m1, m2, m2_no_nugget, m3, m4, m5, tot_pop_gls, m_null)) %>%
+	mutate(model_name = rownames(.)) %>%
+	dplyr::select(-df) %>%
+	arrange(AIC) %>%
+	dplyr::select(model_name, AIC)
+pander(aic_table)
+```
+
+`m2` is the best model according to AIC. There is definitely an effect of spatial autocorrelation as the AIC of `m_no_cor` is the highest of all the models and is higher than a null model.
+
+Exploring the best fitted model (`m2`). First look at a semivariogram of the normalised residuals and the fit of the correlation structure on the raw values:
+
+```{r}
+vario2_resid <- Variogram(m2, form = ~x_coord + y_coord, resType = "normalized")
+vario2_fit <- Variogram(m2, form = ~x_coord + y_coord, resType = "pearson")
+plot(vario2_resid, smooth = TRUE, ylim = c(0, 1.2))
+plot(vario2_fit, ylim = c(0, 1.2))
+```
+
+The fit of the correlation structure isn't great (blue line), I still don't understand the semivariogram which decreases at higher distances, but that might not be a massive issue.
+
+Next, look at the standardized residuals of the model:
+
+```{r}
+plot(m2, which = 1:4)
+```
+
+Standardized residuals don't show any pattern with the fitted values, so that model assumption isn't violated.
+
+And next the normality of residuals:
+
+```{r}
+qqnorm(m2)
+```
+
+This is dodgy because the data comes from a zero inflated count distribution, even if it has been log transformed since.
+
+Finally, look at the model outputs:
+
+```{r}
+summary(m2)
+anova(m2)
+r.squaredLR(m2, null = m_null)
+r.squaredLR(m2)
+```
+
+No significant effect of population on weevil damage once controlled for spatial structure (p = 0.156) and the best model accounts for only 15.6% of the variation in weevil damage, regardless of whether the null model was specified.
+
+# Adding family level predictors to the model
+
+```{r}
+m2_fam_nest <- gls(log1p(curr_damage) ~ family:population, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage)
+```
+
+```{r}
+m2_fam <- gls(log1p(curr_damage) ~ family, 
+							correlation = corGaus(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage)
+
+m1_fam <- gls(log1p(curr_damage) ~ family, 
+							correlation = corExp(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage)
+
+m3_fam <- gls(log1p(curr_damage) ~ family, 
+							correlation = corSpher(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage)
+
+m4_fam <- gls(log1p(curr_damage) ~ family, 
+							correlation = corLin(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage)
+
+m5_fam <- gls(log1p(curr_damage) ~ family, 
+							correlation = corRatio(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage)
+```
+
+```{r}
+aic_table <- data.frame(AIC(m1, m2, m2_no_nugget, m3, m4, m5, tot_pop_gls, m_null, m1_fam, m2_fam, m3_fam, m4_fam, m5_fam)) %>%
+	mutate(model_name = rownames(.)) %>%
+	dplyr::select(-df) %>%
+	arrange(AIC) %>%
+	dplyr::select(model_name, AIC)
+pander(aic_table)
+```
+
+Currently, the GLS with family nested within population doesn't converge due to singularities, I think this is because by nesting, they actually mean "crossed effects". If I just include family level effects and compare to the previous population level models, I STILL don't get any better than the population level Gaussian correlation structure model (`m2`).
+
+# Linear mixed effects models - no correlation structure, family level
+
+```{r}
+curr_fam_lmer <- lmer(log1p(curr_damage) ~ family + (1|population), data = damage)
+curr_pop_lmer <- lmer(log1p(curr_damage) ~ population + (1|block), data = damage)
+curr_lmer_rand <- lmer(log1p(curr_damage) ~ (1|population), data = damage)
+curr_lmer_null <- lm(log1p(curr_damage) ~ 1, data = damage)
+```
+
+```{r}
+summary(curr_fam_lmer)
+
+aic_table_lmer <- data.frame(AIC(curr_fam_lmer, curr_lmer_rand, curr_lmer_null, curr_pop_lmer)) %>%
+	mutate(model_name = rownames(.)) %>%
+	dplyr::select(-df) %>%
+	arrange(AIC) %>%
+	dplyr::select(model_name, AIC)
+pander(aic_table_lmer)
+```
+
+The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model output. 
