@@ -25,21 +25,50 @@ library(nlme)
 library(pander)
 library(MuMIn)
 library(lme4)
+library(rgdal)
 ```
 
 
 ```{r}
 damage <- read.csv("data/damage.csv")
+site_loc <- read.csv("data/site_loc.csv")
+site_loc <- na.omit(site_loc)
+uk_outline <- readOGR("data/GBR_adm", "GBR_adm1")
 ```
 
 # Basic exploratory plots
+
+## Map of population collection locations, grouped by region
+
+```{r}
+scotland_outline <- uk_outline[uk_outline$NAME_1 == "Scotland",]
+```
+
+```{r}
+scotland_fort <- fortify(scotland_outline, region = "NAME_1")
+```
+
+```{r}
+ggplot() + 
+	geom_polygon(aes(x = long, y = lat, group = group), 
+							 colour = "black", fill = NA,
+								 data = scotland_fort, alpha = 1) + 
+	geom_point(aes(x = dec_longitude, y = dec_latitude, 
+								 colour = region, shape = big_region),
+						 data = site_loc) + 
+	theme_classic() + 
+	theme(legend.position = "right") + 
+	coord_map() + 
+	xlim(-7.5, 0) + 
+	ylim(54.5, 59.5)
+```
 
 ## Boxplots of lesions by Scot's Pine population
 
 Lesions from this year (2015)
 
 ```{r}
-ggplot(damage, aes(x = population, y = curr_damage)) + 
+ggplot(damage, aes(x = population, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Number of lesions in 2015") +
@@ -51,17 +80,27 @@ Zero inflation makes any patterns hard to see.
 Previous lesions only 
 
 ```{r}
-ggplot(damage, aes(x = population, y = prev_damage)) + 
+ggplot(damage, aes(x = population, y = log1p(prev_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Number of old lesions") +
 	theme_classic()
 ```
 
-All lesions 
+All lesions:
 
 ```{r}
-ggplot(damage, aes(x = population, y = total_damage)) + 
+ggplot(damage, aes(x = population, y = log1p(total_damage))) + 
+	geom_boxplot() + 
+	labs(x = "Population",
+			 y = "Total number of lesions") +
+	theme_classic()
+```
+
+Boxplots of lesions by Cavers region:
+
+```{r}
+ggplot(damage, aes(x = region_let, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Total number of lesions") +
@@ -273,4 +312,8 @@ aic_table_lmer <- data.frame(AIC(curr_fam_lmer, curr_lmer_rand, curr_lmer_null, 
 pander(aic_table_lmer)
 ```
 
-The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model output. 
+The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model output.
+
+# Using larger population groupings
+
+
