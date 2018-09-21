@@ -1,22 +1,22 @@
-﻿name,region,code,big_region,dec_latitude,dec_longitude
-Abernethy,D,AB,B,57.246639,-3.682531
-Allt Cul,E,AC,B,57.07191,-3.468694
-Amat,C,AM,A,57.871542,-4.594683
-Ballochuie,E,BB,B,56.994029,-3.314194
-Beinn Eighe,B,BE,A,57.622523,-5.415795
-Black Wood of Rannoch,G,BW,C,56.676685,-4.326816
-Coille Coire Chuilc,G,CC,C,56.411971,-4.705057
-Cona Glen,F,CG,C,56.788014,-5.318201
-Crannach,F,CR,C,56.54534,-4.829506
-Glen Affrich,C,GA,A,57.353466,-4.743672
-Glen Cannich,C,GC,A,57.302965,-4.882958
-Glen Derry,D,GD,B,57.058594,-3.58831
-Glen Einig,A,GE,A,57.934094,-4.785083
-Glen Loy,F,GL,C,56.916033,-5.127306
-Glen Tanar,E,GT,B,57.05566,-2.836918
-Loch Clair,B,LC,A,57.559908,-5.343253
-Meggernie,G,MG,C,56.586979,-4.299903
-Rhidorroch,A,RD,A,57.932049,-4.969789
-Rothiemurchus,D,RM,B,57.178623,-3.816672
-Shieldaig,B,SD,A,57.515879,-5.64146
-Strath Oykel,A,SO,A,58.017487,-4.680378
+﻿name,seed_zone,site_code,big_region,dec_latitude,dec_longitude,site_area_ha,gsl,growing_deg_days_c,feb_mean_temp_c,jul_mean_temp_c
+Glen Einig,N,GE,A,57.96,-4.76,27,242,1089,2.19,13.15
+Rhidorroch,N,RD,A,57.89,-4.98,103,221,840,1.51,11.62
+Strath Oykel,N,SO,A,57.98,-4.61,14,257,1276,2.69,14.05
+Beinn Eighe,NW,BE,A,57.63,-5.4,182,283,1329,3.68,14.16
+Loch Clair,NW,LC,A,57.56,-5.36,126,277,1253,3.44,13.68
+Shieldaig,NW,SD,A,57.5,-5.63,103,273,1093,3.21,12.83
+Amat,NC,AM,A,57.87,-4.6,181,214,892,1.22,12.29
+Glen Affrich,NC,GA,A,57.26,-4.92,1532,210,769,0.88,11.62
+Glen Cannich,NC,GC,A,57.35,-4.95,301,212,778,0.96,11.71
+Abernethy,EC,AB,B,57.21,-3.61,2452,211,990,1.15,12.73
+Glen Derry,EC,GD,B,57.03,-3.58,235,168,593,-0.46,11.34
+Rothiemurchus,EC,RM,B,57.15,-3.77,1744,224,1087,1.39,13.15
+Allt Cul,NE,AC,B,57.04,-3.35,13,145,513,-1.01,10.41
+Ballochuie,NE,BB,B,56.98,-3.3,775,116,446,-1.69,9.46
+Glen Tanar,NE,GT,B,57.02,-2.86,1564,235,1105,2.21,13.63
+Cona Glen,SW,CG,C,56.79,-5.33,189,246,887,2.2,11.73
+Crannach,SW,CR,C,56.58,-4.68,70,231,1019,1.81,12.62
+Glen Loy,SW,GL,C,56.91,-5.13,74,191,541,0.49,9.8
+Black Wood of Rannoch,SC,BW,C,56.68,-4.37,1011,254,1138,2.12,13.55
+Coille Coire Chuilc,SC,CC,C,56.42,-4.71,67,226,928,1.64,12.32
+Meggernie,SC,MG,C,56.58,-4.35,277,223,916,1.07,12.04

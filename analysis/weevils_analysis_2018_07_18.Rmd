@@ -16,6 +16,21 @@ knitr::opts_chunk$set(fig.align = "center")
 
 # Preamble
 
+What version of R is being used?
+
+```{r}
+print(version)
+
+citation(package = "base", lib.loc = NULL, auto = NULL)
+```
+
+Citation of packages being used:
+
+
+```{r}
+citation("nlme")
+```
+
 ```{r message = FALSE, error = FALSE}
 library(ggplot2)
 library(viridis)
@@ -32,8 +47,18 @@ library(rgdal)
 ```{r}
 damage <- read.csv("data/damage.csv")
 site_loc <- read.csv("data/site_loc.csv")
-site_loc <- na.omit(site_loc)
 uk_outline <- readOGR("data/GBR_adm", "GBR_adm1")
+```
+
+Match site_location information from `site_loc` with individuals in `damage`, using `site_code` and `population` as a key, respectively
+
+
+```{r}
+damage_full <- left_join(site_loc, damage, by = c("site_code" = "population"))
+names(damage_full) <- c("site_name", "seed_zone", "site_code", "big_region", "dec_latitude", "dec_longitude", "site_area_ha",
+								 "gsl", "growing_deg_days_c", "feb_mean_temp_c", "jul_mean_temp_c", "loc", "family", "individual", 
+								 "field_code", "x_coord", "y_coord", "xy_coord", "block", "prev_damage", "curr_damage",
+								 "total_damage")
 ```
 
 # Basic exploratory plots
@@ -54,8 +79,12 @@ ggplot() +
 							 colour = "black", fill = NA,
 								 data = scotland_fort, alpha = 1) + 
 	geom_point(aes(x = dec_longitude, y = dec_latitude, 
-								 colour = region, shape = big_region),
+								 colour = seed_zone, shape = big_region),
 						 data = site_loc) + 
+#	geom_text(aes(x = dec_longitude, y = dec_latitude,
+#								 label = name),
+#						 size = 1.6,
+#						 data = site_loc) + 
 	theme_classic() + 
 	theme(legend.position = "right") + 
 	coord_map() + 
@@ -65,12 +94,44 @@ ggplot() +
 	ylab("Latitude")
 ```
 
+## Climate space of sites
+
+```{r}
+ggplot(site_loc, aes(x = feb_mean_temp_c, y = jul_mean_temp_c)) + 
+	geom_point(aes(colour = seed_zone, shape = big_region)) + 
+	labs(x = "February mean temperature (C)",
+			 y = "July mean temperature (C)") +
+	theme_classic()
+```
+
+```{r}
+ggplot(site_loc, aes(x = dec_latitude, y = growing_deg_days_c)) + 
+	geom_point(aes(colour = seed_zone, shape = big_region)) + 
+	labs(x = "Decimal latitude",
+			 y = "Growing degree days (c)") +
+	theme_classic()
+```
+
+```{r}
+site_loc %>%
+	group_by(seed_zone) %>%
+	summarise(mean_growing_deg_days_c = mean(growing_deg_days_c)) %>%
+	mutate(seed_zone = factor(seed_zone, 
+														levels = seed_zone[order(.$mean_growing_deg_days_c)])) %>%
+	ggplot(aes(x = seed_zone, y = mean_growing_deg_days_c)) + 
+	geom_bar(stat = "identity", aes(fill = seed_zone)) + 
+	labs(x = "Seed zone",
+			 y = "Mean growing degree days (C)") + 
+	theme_classic() +
+	theme(legend.position = "none")
+```
+
 ## Boxplots of lesions by Scot's Pine population
 
 Lesions from this year (2015)
 
 ```{r}
-ggplot(damage, aes(x = population, y = log1p(curr_damage))) + 
+ggplot(damage_full, aes(x = site_code, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Number of lesions in 2015") +
@@ -82,7 +143,7 @@ Zero inflation makes any patterns hard to see.
 Previous lesions only 
 
 ```{r}
-ggplot(damage, aes(x = population, y = log1p(prev_damage))) + 
+ggplot(damage_full, aes(x = site_code, y = log1p(prev_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Number of old lesions") +
@@ -92,7 +153,7 @@ ggplot(damage, aes(x = population, y = log1p(prev_damage))) +
 All lesions:
 
 ```{r}
-ggplot(damage, aes(x = population, y = log1p(total_damage))) + 
+ggplot(damage_full, aes(x = site_code, y = log1p(total_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Total number of lesions") +
@@ -102,20 +163,44 @@ ggplot(damage, aes(x = population, y = log1p(total_damage))) +
 Boxplots of lesions by Cavers region:
 
 ```{r}
-ggplot(damage, aes(x = region_let, y = log1p(curr_damage))) + 
+ggplot(damage_full, aes(x = site_code, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Total number of lesions") +
 	theme_classic()
 ```
 
+## Is there a correlation between current damage and previous damage?
+
+```{r}
+ggplot(damage_full, aes(x = log1p(prev_damage), y = log1p(curr_damage))) + 
+	geom_point(aes(colour = seed_zone, shape = big_region)) + 
+	stat_smooth(method = "lm") + 
+	theme_classic()
+```
+
+```{r}
+cor_dam <- cor(damage_full$prev_damage, damage_full$curr_damage, method = "pearson")
+
+damage_nozero_dam <- damage_full %>%
+	filter(prev_damage != 0,
+				 curr_damage != 0)
+
+cor_dam_nozero <- cor(damage_nozero_dam$prev_damage, damage_nozero_dam$curr_damage, method = "pearson")
+
+cor_dam
+
+cor_dam_nozero
+```
+Thee isn't much of a correlation between the two
+
 ## Exploring spatial patterns in data 
 
 Are the populations randomly placed on the grid?
 
 ```{r fig.width=14}
-ggplot(damage, aes(x = x_coord, y = y_coord)) + 
-	geom_point(aes(colour = population)) + 
+ggplot(damage_full, aes(x = x_coord, y = y_coord)) + 
+	geom_point(aes(colour = site_name)) + 
 	coord_equal() + 
 	theme_classic() + 
 		theme(legend.position = "bottom") 
@@ -125,7 +210,7 @@ ggplot(damage, aes(x = x_coord, y = y_coord)) +
 Spatial autocorrelation in total number of lesions:
 
 ```{r fig.width=14}
-ggplot(damage, aes(x = x_coord, y = y_coord)) + 
+ggplot(damage_full, aes(x = x_coord, y = y_coord)) + 
 	geom_point(aes(colour = total_damage, size = total_damage)) + 
 	scale_colour_viridis(name = "No. lesions") + 
 	scale_size_continuous(guide = FALSE) + 
@@ -138,7 +223,7 @@ ggplot(damage, aes(x = x_coord, y = y_coord)) +
 Spatial autocorrelation in fresh lesions (this year):
 
 ```{r fig.width=14}
-ggplot(damage, aes(x = x_coord, y = y_coord)) + 
+ggplot(damage_full, aes(x = x_coord, y = y_coord)) + 
 	geom_point(aes(colour = total_damage, size = curr_damage)) + 
 	scale_colour_viridis(name = "No. lesions (2015)") + 
 	scale_size_continuous(guide = FALSE) + 
@@ -152,7 +237,7 @@ The weevil damage seems to be clustered in certain areas, possibly the saplings 
 # Testing for spatial autocorrelation
 
 ```{r}
-curr_dam_semivar <- variogram(log1p(curr_damage)~1, data = damage, locations = ~x_coord+y_coord)
+curr_dam_semivar <- variogram(log1p(curr_damage)~1, data = damage_full, locations = ~x_coord+y_coord)
 
 plot(curr_dam_semivar)
 ```
@@ -162,7 +247,7 @@ Spatial autocorrelation is pretty strong across the range of distances, but is t
 Removing zero points:
 
 ```{r}
-damage_no_zero <- damage %>%
+damage_no_zero <- damage_full %>%
 	filter(curr_damage > 0)
 ```
 
@@ -178,7 +263,7 @@ Autocorrelation is still very high when points with zeroes are excluded. There i
 Basic Generalised Least Squares model and outputs:
 
 ```{r}
-tot_pop_gls <- gls(log1p(curr_damage) ~ population , data = damage)
+tot_pop_gls <- gls(log1p(curr_damage) ~ site_name , data = damage_full)
 vario2 <- Variogram(tot_pop_gls, form = ~x_coord + y_coord, resType = "pearson")
 plot(vario2, smooth = TRUE)
 ```
@@ -186,25 +271,25 @@ plot(vario2, smooth = TRUE)
 Construct lots of models with different spatial correlation structures, then compare with AIC:
 
 ```{r}
-m1 <- gls(log1p(curr_damage) ~ population, correlation = corExp(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m1 <- gls(log1p(curr_damage) ~ site_name, correlation = corExp(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 
-m2 <- gls(log1p(curr_damage) ~ population, correlation = corGaus(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m2 <- gls(log1p(curr_damage) ~ site_name, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 
-m2_no_nugget <- gls(log1p(curr_damage) ~ population, correlation = corGaus(form = ~x_coord + 
-    y_coord, nugget = FALSE), data = damage)
+m2_no_nugget <- gls(log1p(curr_damage) ~ site_name, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = FALSE), data = damage_full)
 
-m3 <- gls(log1p(curr_damage) ~ population, correlation = corSpher(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m3 <- gls(log1p(curr_damage) ~ site_name, correlation = corSpher(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 
-m4 <- gls(log1p(curr_damage) ~ population, correlation = corLin(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m4 <- gls(log1p(curr_damage) ~ site_name, correlation = corLin(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 
-m5 <- gls(log1p(curr_damage) ~ population, correlation = corRatio(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m5 <- gls(log1p(curr_damage) ~ site_name, correlation = corRatio(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 
-m_null <- gls(log1p(curr_damage) ~ 1, data = damage)
+m_null <- gls(log1p(curr_damage) ~ 1, data = damage_full)
 
 aic_table <- data.frame(AIC(m1, m2, m2_no_nugget, m3, m4, m5, tot_pop_gls, m_null)) %>%
 	mutate(model_name = rownames(.)) %>%
@@ -257,30 +342,30 @@ No significant effect of population on weevil damage once controlled for spatial
 # Adding family level predictors to the model
 
 ```{r}
-m2_fam_nest <- gls(log1p(curr_damage) ~ family:population, correlation = corGaus(form = ~x_coord + 
-    y_coord, nugget = TRUE), data = damage)
+m2_fam_nest <- gls(log1p(curr_damage) ~ family:site_name, correlation = corGaus(form = ~x_coord + 
+    y_coord, nugget = TRUE), data = damage_full)
 ```
 
 ```{r}
 m2_fam <- gls(log1p(curr_damage) ~ family, 
 							correlation = corGaus(form = ~x_coord + y_coord, nugget = TRUE), 
-							data = damage)
+							data = damage_full)
 
 m1_fam <- gls(log1p(curr_damage) ~ family, 
 							correlation = corExp(form = ~x_coord + y_coord, nugget = TRUE), 
-							data = damage)
+							data = damage_full)
 
 m3_fam <- gls(log1p(curr_damage) ~ family, 
 							correlation = corSpher(form = ~x_coord + y_coord, nugget = TRUE), 
-							data = damage)
+							data = damage_full)
 
 m4_fam <- gls(log1p(curr_damage) ~ family, 
 							correlation = corLin(form = ~x_coord + y_coord, nugget = TRUE), 
-							data = damage)
+							data = damage_full)
 
 m5_fam <- gls(log1p(curr_damage) ~ family, 
 							correlation = corRatio(form = ~x_coord + y_coord, nugget = TRUE), 
-							data = damage)
+							data = damage_full)
 ```
 
 ```{r}
@@ -297,10 +382,10 @@ Currently, the GLS with family nested within population doesn't converge due to 
 # Linear mixed effects models - no correlation structure, family level
 
 ```{r}
-curr_fam_lmer <- lmer(log1p(curr_damage) ~ family + (1|population), data = damage)
-curr_pop_lmer <- lmer(log1p(curr_damage) ~ population + (1|block), data = damage)
-curr_lmer_rand <- lmer(log1p(curr_damage) ~ (1|population), data = damage)
-curr_lmer_null <- lm(log1p(curr_damage) ~ 1, data = damage)
+curr_fam_lmer <- lmer(log1p(curr_damage) ~ family + (1|site_name), data = damage_full)
+curr_pop_lmer <- lmer(log1p(curr_damage) ~ site_name + (1|block), data = damage_full)
+curr_lmer_rand <- lmer(log1p(curr_damage) ~ (1|site_name), data = damage_full)
+curr_lmer_null <- lm(log1p(curr_damage) ~ 1, data = damage_full)
 ```
 
 ```{r}
@@ -316,6 +401,23 @@ pander(aic_table_lmer)
 
 The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model output.
 
-# Using larger population groupings
+# Using larger population groupings and climate variables
 
+Family level groupings didn't appear to predict weevil damage at all and population (site) level groupings don't predict very much, so what if I group into larger groups such as `seed_zone` and `big_region`?
+
+```{r}
+ggplot(damage_full, aes(x = seed_zone, y = log1p(curr_damage))) + 
+	geom_boxplot(aes(fill = seed_zone)) + 
+	theme_classic() + 
+	theme(legend.position = "none")
+```
+
+```{r}
+m2_sz <- gls(curr_damage ~ seed_zone, 
+							correlation = corGaus(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage_full)
+summary(m2_sz)
+```
+
+__Think about using family as a random effect in the models, rather than a fixed effect__
 

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.6)  23 AUG 2018 14:27
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.6)  2 SEP 2018 08:31
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -262,19 +262,33 @@ Package natbib Warning: Citation `Heritage2001' on page 1 undefined on input lin
 
 Package natbib Warning: Citation `Evans2015' on page 1 undefined on input line 59.
 
+[1
+
+]
+
+Package natbib Warning: Citation `Carlisle1968' on page 2 undefined on input line 74.
+
+
+Package natbib Warning: Citation `Donnelly2018' on page 2 undefined on input line 84.
+
+
+Package natbib Warning: Citation `Pinheiro2018' on page 2 undefined on input line 96.
+
+
+Package natbib Warning: Citation `RCoreTeam2017' on page 2 undefined on input line 99.
+
+[2]
 
 Package natbib Warning: There were undefined citations.
 
-[1
-
-] (./weevils.aux) ) 
+[3] (./weevils.aux) ) 
 Here is how much of TeX's memory you used:
- 3886 strings out of 493706
- 57079 string characters out of 6145769
- 125057 words of memory out of 5000000
- 7192 multiletter control sequences out of 15000+600000
- 9980 words of font info for 36 fonts, out of 8000000 for 9000
+ 3891 strings out of 493706
+ 57151 string characters out of 6145769
+ 126057 words of memory out of 5000000
+ 7197 multiletter control sequences out of 15000+600000
+ 10287 words of font info for 37 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
  36i,6n,38p,1316b,213s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on weevils.pdf (1 page).
+Output written on weevils.pdf (3 pages).
