@@ -42,6 +42,7 @@ Prevailing wind may lead to increased isolation by distance as you go further we
 
 There have been extensive Scot's Pine plantations established throughout the UK in the last century, so it would be interesting to understand the impact these plantations might have on the genetic diversity of future scots pine generations
 
+
 # Donnelly et al. 2018 - Cryptic genetic variation and adaptation to waterlogging in Caledonian Scots pine, Pinus sylvestris L.
 
 Physiological responses to drought measured through Fv/Fm chlorophyll fluorescence

@@ -52,17 +52,21 @@
 \maketitle{}
 
 \begin{abstract}
+    Damage to coniferous plantation crops from the large pine weevil \textit{Hylobius abietis} causes economic losses of \euro{}140 million in Europe \textit{per annum}. Current mitigation strategies are labour intensive and only partially effective. Natural resistance of host plants to insect pests has been used in many crop species to reduce damage as part of an integrated pest management strategy. Here, we conducted a common garden experiment in an area known to have pine weevils, with seedlings collected from 21 naturally occurring populations of \textit{Pinus sylvestris} across Scotland
+
 \end{abstract}
 
 \section*{Introduction}
 
-The large pine weevil (\textit{Hylobius abietis} L. Coleoptera: Curculionidae) is a common pest of newly planted conifer plantations in Europe, generally causing damage to saplings up to five years old \citep{Dillon2008}. Adult weevils emerge from tree stumps and feed on the bark and buds of coniferious saplings. Circular lesions on the bark and buds may cause a reduction in growth rate, stem deformation and an increased susceptibility to infection by airborne diseases of trees \citep{Leather1999}. A single adult weevil can damage several plants over the course of a season, with \textasciitilde{}50\% sapling mortality observed across plantation sites in the UK and Ireland \citep{Heritage2001}. On commercial conifer plantations, \textit{H. abietis} causes annual economic losses of \euro{}140 million \textit{per annum} in Europe, of which \euro{}2.75 million occurs in the UK \citep{Evans2015}. \textit{H. abietis} \todo{benefit from the env. created by the clearfelling of forest}. The potential for climate change to enhance the damage caused by \textit{H. abietis}, by reducing life cycle length and encouraging migration into previously weevil free areas, has prompted discussion of the effectiveness of current management practices and possible alternatives \citep{}.
+The large pine weevil (\textit{Hylobius abietis} L. Coleoptera: Curculionidae) is a common pest of newly planted conifer plantations in Europe, generally causing damage to saplings up to five years old \citep{Dillon2008}. Adult weevils emerge from tree stumps and feed on the bark and buds of coniferious saplings. Circular lesions on the bark and buds of saplings as a result of feeding may cause a reduction in growth rate, stem deformation and an increased susceptibility to infection by airborne diseases of trees \citep{Leather1999}. While pine weevils may inhabit adult coniferous trees in both natural and planted coniferous forests, recently clearfelled and restocked coniferous forest plantation sites provide enriched habitat for breeding pine weevils. Adults lay eggs within the numerous stumps of clearfelled trees. with newly emerged juvenile weevils feeding on young saplings planted for restocking, causing damage and mortality. A single adult weevil can damage several plants over the course of a season, with \textasciitilde{}50\% sapling mortality observed across infected plantation sites in the UK and Ireland \citep{Heritage2001}. On commercial conifer plantations, \textit{H. abietis} causes annual economic losses of \euro{}140 million \textit{per annum} in Europe, of which \euro{}2.75 million occurs in the UK \citep{Evans2015}. The potential for climate change to enhance the damage caused by \textit{H. abietis}, by reducing life cycle length \citep{} and encouraging migration into previously weevil free areas \citep{}, has prompted discussion of the effectiveness of current management practices and possible alternatives \citep{}.
 
-Control management of \textit{H. abietis} currently relies on a variety of chemical, biological and physical measures, with integrated pest management schemes yielding greater success \citep{}. \todo{MORE ON METHODS OF CONTROL}
+Management of \textit{H. abietis} currently relies on a variety of chemical, biological and physical measures, with integrated pest management schemes tending to yield greater success \citep{}. Physical deterrents include piling felling debris over exposed stumps to reduce egg laying, or stump removal. The application of entomopathogenic nematodes after clearfelling has been shown to reduce the number of adult weevils in clearfelled site \citep{Dillon2006}. The most common method of control is the addition of chemicals at the time of restocking, with \textit{H. abietis} being the only insect pest against which routine chemical controls are applied in the UK and Ireland \citep{Willoughby2004}.  
 
-\todo{Scots pine is a pretty cool tree}
+Scots pine (\textit{Pinus sylvestris} L.) is one of the UK's three endemic coniferous tree species. It constitutes \textasciitilde{}\todo{percentage} of the UK's commercial plantation forestry by biomass, while natural populations are restricted to enclaves in the north of Scotland. \todo{Caledonian remanents.} Pine weevils attack scots pine plantations  
 
 Rather than the application of costly pesticides or biological control agents, breeding weevil resistant \textit{P. sylvestris} varieties, or identifying existing genetically distinct population of \textit{P. sylvestris} for commercial plantation forestry may provide a low cost method of reducing economic losses from weevil damage.
+
+\todo{other crops where natural resistance has worked}
 
 Here, we conducted a common garden experiment to assess the resistance of \textit{P. sylvestris} saplings grown from seed collected in populations across the natural longitudinal range of Caledonian Pine to damage from the large pine weevil \textit{H. abietis}. 
 
@@ -91,12 +95,11 @@ The common garden was located at \todo{COORDS} in a \todo{SIZE} patch of recentl
 
 Pine weevil infestation occurred naturally across the site, with adult weevils likely travelling from the adult sitka spruce plantation adjacent to the site. 
 
+Pine weevil lesions were counted on each sapling stem between \todo{DATES}. This is roughly between the two seasonal peaks of weevil feeding that are commonly observed in the UK. Isolated lesions tended to be roughly circular with a diameter of \textasciitilde{}3 mm. Where a larger continuous legion, as when a stem was girdled, the larger legion was photographed with a scale and the area estimated by tracing the lesion with Imagej version 1.50g7 \citep{Schneider2012}. Weevil damage is therefore expressed as the mm\textsuperscript{2} area of stem lesions per sapling. 
+
 \subsection*{Statistical analysis}
 
-To isolate the effects of sapling genetic origin resistance to damage by pine weevils, we conducted generalised least squares linear models using the `\textit{nlme}' package in R \citep{Pinheiro2018}. Zero-inflated count data 
-
-
-All analyses were conducted in R version 3.4.2 \citep{RCoreTeam2017}.
+To isolate the effects of sapling genetic origin resistance to damage by pine weevils, we conducted generalised least squares linear models using the `\textit{nlme}' package \citep{Pinheiro2018} in R version 3.4.2 \citep{RCoreTeam2017}. Due to many saplings receiving no weevil damage, zero-inflated data was transformed by adding 1 to all measurements and log transforming.
 
 
 \section*{Results}
@@ -105,7 +108,6 @@ All analyses were conducted in R version 3.4.2 \citep{RCoreTeam2017}.
 
 \section*{Conclusion}
 
-TEXT
 
 %-----------------------------------------------
 \end{document}
@@ -113,3 +115,4 @@ TEXT
 
 
 % Think about framing the question in terms of identifying conservation priorities for genetically distinct populations which don't have much resistance to the weevils
+% Alright idea, but natural population of scots pine really don't have that much damage from pine weevils, mainly because there aren't an abundance of stumps and young trees close together in natural populations.

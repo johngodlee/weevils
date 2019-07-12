@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.6)  2 SEP 2018 08:31
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.6)  21 SEP 2018 15:03
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -251,44 +251,53 @@ LaTeX Font Info:    ... okay on input line 49.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 
-Package natbib Warning: Citation `Dillon2008' on page 1 undefined on input line 59.
+Package natbib Warning: Citation `Dillon2008' on page 1 undefined on input line 61.
 
 
-Package natbib Warning: Citation `Leather1999' on page 1 undefined on input line 59.
+Package natbib Warning: Citation `Leather1999' on page 1 undefined on input line 61.
 
 
-Package natbib Warning: Citation `Heritage2001' on page 1 undefined on input line 59.
+Package natbib Warning: Citation `Heritage2001' on page 1 undefined on input line 61.
 
 
-Package natbib Warning: Citation `Evans2015' on page 1 undefined on input line 59.
+Package natbib Warning: Citation `Evans2015' on page 1 undefined on input line 61.
+
+
+Package natbib Warning: Citation `Dillon2006' on page 1 undefined on input line 63.
+
+
+Package natbib Warning: Citation `Willoughby2004' on page 1 undefined on input line 63.
 
 [1
 
 ]
 
-Package natbib Warning: Citation `Carlisle1968' on page 2 undefined on input line 74.
+Package natbib Warning: Citation `Carlisle1968' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `Donnelly2018' on page 2 undefined on input line 84.
-
-
-Package natbib Warning: Citation `Pinheiro2018' on page 2 undefined on input line 96.
-
-
-Package natbib Warning: Citation `RCoreTeam2017' on page 2 undefined on input line 99.
+Package natbib Warning: Citation `Donnelly2018' on page 2 undefined on input line 88.
 
 [2]
+
+Package natbib Warning: Citation `Schneider2012' on page 3 undefined on input line 98.
+
+
+Package natbib Warning: Citation `Pinheiro2018' on page 3 undefined on input line 102.
+
+
+Package natbib Warning: Citation `RCoreTeam2017' on page 3 undefined on input line 102.
+
 
 Package natbib Warning: There were undefined citations.
 
 [3] (./weevils.aux) ) 
 Here is how much of TeX's memory you used:
- 3891 strings out of 493706
- 57151 string characters out of 6145769
+ 3899 strings out of 493706
+ 57279 string characters out of 6145769
  126057 words of memory out of 5000000
- 7197 multiletter control sequences out of 15000+600000
- 10287 words of font info for 37 fonts, out of 8000000 for 9000
+ 7205 multiletter control sequences out of 15000+600000
+ 11590 words of font info for 42 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
- 36i,6n,38p,1316b,213s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,6n,38p,1695b,213s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on weevils.pdf (3 pages).

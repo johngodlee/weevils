@@ -41,6 +41,8 @@ library(pander)
 library(MuMIn)
 library(lme4)
 library(rgdal)
+library(psych)
+library(car)
 ```
 
 
@@ -128,8 +130,7 @@ site_loc %>%
 
 ## Boxplots of lesions by Scot's Pine population
 
-Lesions from this year (2015)
-
+Lesions from this year (2015), log+1 transformed, according to regions of seed collection: 
 ```{r}
 ggplot(damage_full, aes(x = site_code, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
@@ -140,7 +141,7 @@ ggplot(damage_full, aes(x = site_code, y = log1p(curr_damage))) +
 
 Zero inflation makes any patterns hard to see.
 
-Previous lesions only 
+Previous lesions only, log+1 transformed:
 
 ```{r}
 ggplot(damage_full, aes(x = site_code, y = log1p(prev_damage))) + 
@@ -150,20 +151,10 @@ ggplot(damage_full, aes(x = site_code, y = log1p(prev_damage))) +
 	theme_classic()
 ```
 
-All lesions:
+All lesions, log+1 transformed:
 
 ```{r}
 ggplot(damage_full, aes(x = site_code, y = log1p(total_damage))) + 
-	geom_boxplot() + 
-	labs(x = "Population",
-			 y = "Total number of lesions") +
-	theme_classic()
-```
-
-Boxplots of lesions by Cavers region:
-
-```{r}
-ggplot(damage_full, aes(x = site_code, y = log1p(curr_damage))) + 
 	geom_boxplot() + 
 	labs(x = "Population",
 			 y = "Total number of lesions") +
@@ -179,20 +170,43 @@ ggplot(damage_full, aes(x = log1p(prev_damage), y = log1p(curr_damage))) +
 	theme_classic()
 ```
 
+Not really, not even if we remove all zeroes:
+
 ```{r}
-cor_dam <- cor(damage_full$prev_damage, damage_full$curr_damage, method = "pearson")
+ggplot(filter(damage_full, prev_damage > 0, curr_damage > 0), 
+	aes(x = log1p(prev_damage), y = log1p(curr_damage))) + 
+	geom_point(aes(colour = seed_zone, shape = big_region)) + 
+	stat_smooth(method = "lm") + 
+	theme_classic()
+```
+
+Testing with spearman's correlations:
+
+```{r}
+cor_dam <- cor.test(damage_full$prev_damage, damage_full$curr_damage, method = "spearman")
 
 damage_nozero_dam <- damage_full %>%
-	filter(prev_damage != 0,
-				 curr_damage != 0)
+	filter(prev_damage > 0,
+				 curr_damage > 0)
 
-cor_dam_nozero <- cor(damage_nozero_dam$prev_damage, damage_nozero_dam$curr_damage, method = "pearson")
+cor_dam_nozero <- cor.test(damage_nozero_dam$prev_damage, damage_nozero_dam$curr_damage, method = "spearman")
 
 cor_dam
 
 cor_dam_nozero
 ```
-Thee isn't much of a correlation between the two
+There isn't much of a correlation between current damage and previous damage, even when zeroes are removed. Though the relationship is significant for the correlation including zero, presumably because if a tree wasn't damaged last year, it wouldn't be damaged again this year.
+
+Trying with a binomial correlation of damaged or not damaged:
+
+```{r}
+damage_full$prev_damage_binom <- ifelse(damage_full$prev_damage > 0, 1, 0)
+damage_full$curr_damage_binom <- ifelse(damage_full$curr_damage > 0, 1, 0)
+
+tetrachoric(table(damage_full$prev_damage_binom,damage_full$curr_damage_binom))
+```
+
+Still no real strong positive correlation.
 
 ## Exploring spatial patterns in data 
 
@@ -206,6 +220,7 @@ ggplot(damage_full, aes(x = x_coord, y = y_coord)) +
 		theme(legend.position = "bottom") 
 ```
 
+It would seem so.
 
 Spatial autocorrelation in total number of lesions:
 
@@ -265,8 +280,14 @@ Basic Generalised Least Squares model and outputs:
 ```{r}
 tot_pop_gls <- gls(log1p(curr_damage) ~ site_name , data = damage_full)
 vario2 <- Variogram(tot_pop_gls, form = ~x_coord + y_coord, resType = "pearson")
+
 plot(vario2, smooth = TRUE)
+
+
+summary(tot_pop_gls)
 ```
+
+Although this looks like there is negative spatial autocorrelation and large distances, this is probably just an artefact of the data, as I can't think of any biological reason why there would be a repulsion effect. That's not how weevils work.
 
 Construct lots of models with different spatial correlation structures, then compare with AIC:
 
@@ -379,6 +400,12 @@ pander(aic_table)
 
 Currently, the GLS with family nested within population doesn't converge due to singularities, I think this is because by nesting, they actually mean "crossed effects". If I just include family level effects and compare to the previous population level models, I STILL don't get any better than the population level Gaussian correlation structure model (`m2`).
 
+```{r}
+Anova(m2, type = "II")
+Anova(m2_fam, type = "II")
+```
+
+
 # Linear mixed effects models - no correlation structure, family level
 
 ```{r}
@@ -399,11 +426,11 @@ aic_table_lmer <- data.frame(AIC(curr_fam_lmer, curr_lmer_rand, curr_lmer_null, 
 pander(aic_table_lmer)
 ```
 
-The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model output.
+The null model is better than any family level mixed effects model, and is better than a mixed model including population. This null result is likely because I am unable to include the spatial autocorrelation structure in the linear model, and this takes up a lot of the variance.
 
 # Using larger population groupings and climate variables
 
-Family level groupings didn't appear to predict weevil damage at all and population (site) level groupings don't predict very much, so what if I group into larger groups such as `seed_zone` and `big_region`?
+Family level groupings didn't appear to predict weevil damage at all and population (site) level groupings don't predict very much either, so what if I group into larger groups such as `seed_zone` and `big_region`?
 
 ```{r}
 ggplot(damage_full, aes(x = seed_zone, y = log1p(curr_damage))) + 
@@ -412,12 +439,34 @@ ggplot(damage_full, aes(x = seed_zone, y = log1p(curr_damage))) +
 	theme(legend.position = "none")
 ```
 
+The following model uses the same auto-correlation structure as the previous models, but uses seed zone rather than family as the categorical predictor.
 ```{r}
 m2_sz <- gls(curr_damage ~ seed_zone, 
 							correlation = corGaus(form = ~x_coord + y_coord, nugget = TRUE), 
 							data = damage_full)
 summary(m2_sz)
+Anova(m2_sz)
 ```
 
-__Think about using family as a random effect in the models, rather than a fixed effect__
+This model uses big_region as the categorical predictor:
+
+```{r}
+m2_br <- gls(curr_damage ~ big_region, 
+							correlation = corGaus(form = ~x_coord + y_coord, nugget = TRUE), 
+							data = damage_full)
+summary(m2_br)
+Anova(m2_br, type = "II")
+```
+
+
+```{r}
+aic_table <- data.frame(AIC(m1, m2, m2_no_nugget, m3, m4, m5, tot_pop_gls, m_null, m1_fam, m2_fam, m3_fam, m4_fam, m5_fam, m2_sz, m2_br)) %>%
+	mutate(model_name = rownames(.)) %>%
+	dplyr::select(-df) %>%
+	arrange(AIC) %>%
+	dplyr::select(model_name, AIC)
+pander(aic_table)
+```
+
+Seed zone accounts for more variance than big_region, but both models are vastly worse at predicting weevil damage than population level models.
 
