@@ -107,4 +107,12 @@ __Dealing with spatial influence of other cells:__
     a 1, what causes the difference.
 
 
+# Links
+
+https://stats.stackexchange.com/questions/59879/logistic-regression-anova-chi-square-test-vs-significance-of-coefficients-ano
+
+https://stats.stackexchange.com/questions/46345/how-to-calculate-goodness-of-fit-in-glm-r
+
+https://stats.stackexchange.com/questions/86351/interpretation-of-rs-output-for-binomial-regression
+
 
