@@ -115,4 +115,20 @@ https://stats.stackexchange.com/questions/46345/how-to-calculate-goodness-of-fit
 
 https://stats.stackexchange.com/questions/86351/interpretation-of-rs-output-for-binomial-regression
 
+https://stats.stackexchange.com/questions/121593/using-the-same-variable-as-a-fixed-and-random-effect-in-mixed-effect-models
 
+https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified
+
+https://stats.idre.ucla.edu/other/mult-pkg/introduction-to-generalized-linear-mixed-models/
+
+https://www.researchgate.net/post/How_to_interpret_interaction_in_a_glmer_model_in_R   - For graph
+
+http://www.mypolyuweb.hk/~sjpolit//logisticregression.html  - Interpreting logistic regression output
+
+http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#model-definition - Using `lme4`
+
+https://strengejacke.wordpress.com/2017/08/27/marginal-effects-for-negative-binomial-mixed-effects-models-glmer-nb-and-glmmtmb-rstats/ - ggeffects for mixed models
+
+https://www.researchgate.net/post/How_do_I_report_the_results_of_a_linear_mixed_models_analysis - pretentious guy explains reporting glmer
+
+https://cran.r-project.org/web/packages/emmeans/vignettes/comparisons.html - Using Tukey's HSD test to compare groups in a mixed model and plotting pairwise comparisons as P-value charts
