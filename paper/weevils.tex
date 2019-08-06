@@ -131,7 +131,7 @@ Spatial autocorrelation in area of bark damaged due to damaged saplings acting a
 
 \subsection*{Sapling damage}
 
-36.9\% (248/672) of the saplings in the common garden were damaged by \textit{H. abietis} feeding activity. Figure \ref{barchart} shows the number of saplings damaged divided into seed collection site populations. All saplings were alive prior to data collection and sapling mortality was not recorded during the experiment. All seed populations had at least eight affected saplings out of a total of 32. The population with the highest number of damaged saplings was Loch Clair (LC), which had 18 damaged saplings. The sapling with the highest mm\textsuperscript{2} damaged area was from Cona Glen (CG) and had 325.8 mm\textsuperscript{2} of bark damaged. Rhidorroch (RD) had the highest cumulative damaged area with 1057.1 mm\textsuperscript{2}. Variation in bark area damaged within seed populations was high (Figure \ref{boxplot}), with some geographic zones having similar levels of damage while others varied a great deal within geographic zone.
+36.9\% (248/672) of the saplings in the common garden were damaged by \textit{H. abietis} feeding activity. Figure \ref{barchart} shows the number of saplings damaged divided into seed collection site populations. All saplings were alive prior to data collection and sapling mortality was not recorded during the experiment. All seed populations had at least eight affected saplings out of a total of 32. The population with the highest number of damaged saplings was Loch Clair (LC), which had 18 damaged saplings. The sapling with the highest mm\textsuperscript{2} damaged area was from Cona Glen (CG) and had 325.8 mm\textsuperscript{2} of bark damaged. Rhidorroch (RD) had the highest cumulative damaged area with 1057.1 mm\textsuperscript{2}. Variation in bark area damaged within seed populations was high (Figure \ref{boxplot}), with some geographic zones having similar levels of damage while others varied a widely within geographic zone.
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{dendro}
@@ -167,68 +167,56 @@ Multiple Generalised Least Squares (GLS) models of damaged sapling area fitted w
 	\label{semivariogram}
 \end{figure}
 
-\begin{table}
-  \centering 
-  \caption{Model comparison of Generalised Least Squares models predicting damaged sapling bark area using different spatial autocorrelation structures. Models are ordered by increasing AIC value.} 
-  \label{cor_table} 
-\begin{tabular}{@{\extracolsep{5pt}} lS[table-format=3.2]S[table-format=3.2]S[table-format=3.2]} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
-Correlation Structure & {AIC} & {Log Likelihood} & {Pseudo R\textsuperscript{2}} \\ 
-\hline \\[-1.8ex] 
-Gaussian & 719.573 & -355.786 & 0.033 \\ 
-Exponential & 720.306 & -356.153 & 0.031 \\ 
-Rational quadratic & 720.496 & -356.248 & 0.028 \\ 
-Null & 725.404 & -360.702 & 0.000 \\ 
-Spherical & 728.224 & -360.112 & 0.004 \\ 
-Linear & 728.224 & -360.112 & 0.004 \\ 
-\hline \\[-1.8ex] 
-\end{tabular} 
-\end{table} 
+\input{include/gls_aic_comp.tex}
 
 \subsection*{The effect of seed population on sapling damage}
 
-The first part of the hurdle model process explored variation among seed populations in the probability of a sapling being damaged by \textit{H. abietis}. The most parsimonous fixed effects model included the fixed effect of geographic zone rather than individual populations (Table \ref{binomial_comp}), but only accounted for a very small percentage of the variance in the likelihood of a sapling being damaged (R\textsuperscript{2}\textsubscript{m} = 0.008) and was less parsimonious than an equivalent random effects model ($\Delta$AICr = 7.51). The models with the greatest explanatory power included maternal parent as a fixed effect and Geographic zone and seed population as nested random intercept effects. These models explained \textasciitilde{}95\% of the variance in the likelihood of a sapling being attacked, but almost all of this was due to the random effects structure (\textasciitilde{}94\%).
+The first part of the hurdle model process explored variation among seed populations in the probability of a sapling being damaged by \textit{H. abietis}. The most parsimonous model was a null model, as estimated by AIC values. Fixed effects models using Geographic Zone and Collection Site explained little of the variance in likelihood of a sapling being damaged, while models using Parent as the fixed effect explained \textasciitilde{}95\% of the variance (Table \ref{binom_comp}). Family models were the least parsimonious however, with $\Delta$AIC values of 147.73 and 145.73. The fixed effect of Family accounted for most of the model variance for those models (\textasciitilde{}94\%). Estimated marginal means of Geographic zones did not vary meaningfully for these models. 
 
-\begin{figure}
-	\includegraphics[width=\textwidth]{pred_binom}
-	\caption{Predicted values with 95\% confidence intervals for the probability of a sapling being damaged with seed collected from different Geographic Zones.}
+\begin{figure}[H]
+\centering
+	\subfloat[]{
+		\includegraphics[width=0.5\textwidth]{pred_binom_site}
+	}
+	\subfloat[]{
+		\includegraphics[width=0.5\textwidth]{pred_binom_geog}
+	}
+	\caption{Predicted values with 95\% confidence intervals for the probability of a sapling being damaged with seed collected from different (a) sites and (b) aggregated by geographic zone.}
+	\label{pred_binom}
 \end{figure}
 
-\todo{Look at which populations are the most different}
+\input{include/binom_lmer_aic_comp.tex}
 
-\todo{How strong was the effect of population?}
+The fixed effect of Site was weak. In a model using seed population as a fixed effect and Parent as a random intercept effect, seed population only accounted for 2.7\% of the variation in the probability that a sapling would be initially damaged by \textit{H. abietis}. According to the best fitting model with site as a fixed effect, saplings from Beinn Eighe (BE) had a greater chance of being initially damaged than others (Figure \ref{pred_binom}a), however, these predicted values were not significantly different from other sites according to a comparison of marginal means.
 
-\begin{table}[!htbp]  \caption{Model comparison of logistic generalised linear mixed effects models predicting the likelihood of a sapling being attacked by \textit{H. abietis}. Models are sorted according to increasing AIC.}   \label{} 
-\centering\begin{tabular}{@{\extracolsep{5pt}} llS[table-format=3.2]S[table-format=3.2]S[table-format=3.2]S[table-format=3.2]} \\[-1.8ex]\hline \hline \\[-1.8ex] Fixed eff. & Random eff. & {AIC} & {logLik} & {R\textsuperscript{2}\textsubscript{m}} & {R\textsuperscript{2}\textsubscript{c}} \\ \hline \\[-1.8ex] NA & NA & 886.953 & -442.476 & 0 & 0 \\ NA & Site & 888.953 & -442.476 & 0 & 0 \\ NA & Site / Family & 890.953 & -442.476 & 0 & 0 \\ NA & Geog. zone / Site / Family & 892.953 & -442.476 & 0 & 0 \\ Geog. zone & Site & 894.462 & -440.231 & 0.008 & 0.006 \\ Geog. zone & Site/Family & 896.462 & -440.231 & 0.008 & 0.006 \\ Site & Family & 910.721 & -433.361 & 0.035 & 0.027 \\ Site & Geog. zone & 910.721 & -433.361 & 0.035 & 0.027 \\ Site & Geog. zone + Family & 912.721 & -433.361 & 0.035 & 0.027 \\ Family & Geog. zone & 1034.683 & -348.341 & 0.953 & 0.940 \\ Family & Geog. zone / Site & 1036.683 & -348.341 & 0.954 & 0.941 \\ \hline \\[-1.8ex] \end{tabular} \end{table} 
+The second part of the hurdle model explored populations level variation in the area of sapling bark damaged by \textit{H. abietis}, for those saplings which were damaged. The best model included Geographic zone as the fixed effect and Site as a random intercept effect(Table \ref{area_comp}).
 
-The second part of the hurdle model explored populations level variation in the area of sapling bark damaged by \textit{H. abietis}, for those saplings which were damaged. The best model included Geographic zone as the fixed effect and Seed population as a random intercept effect(Table \ref{area_comp}).
-
-\begin{figure}
-	\includegraphics[width=\textwidth]{pred_lmer}
+\begin{figure}[H]
+\centering
+	\subfloat[]{
+		\includegraphics[width=0.5\textwidth]{pred_lmer_site}
+	}
+	\subfloat[]{
+		\includegraphics[width=0.5\textwidth]{pred_lmer_geog}
+	}
 	\caption{Predicted values of mm\textsuperscript{2} for saplings with seed collected from different Geographic Zones.}
+	\label{}
 \end{figure}
 
+
+
+
 \begin{figure}
-	\includegraphics[width=\textwidth]{marginal_means}
+	\includegraphics[width=\textwidth]{tukey_lmer_geog}
 	\caption{Pairwise p-values of a Tukey HSD test comparing geographic zones in the best model predicting variation in bark area damaged by \textit{H. abietis}. Geographic zone 1 is significantly (p\textless{}0.05) different from zones 6 and 4. P-values for all other comparisons outwith Geographic zone 1 are close to 1.}
 \end{figure}
 
-\begin{table}
-	\centering 
-	\caption{Model comparison of Generalised Linear Mixed Effects models predicting the area of bark damaged, for those saplings which were damaged. Models are ordered by increasing AIC value.} 
-	\begin{tabular}{@{\extracolsep{5pt}} cccc} 
-	\hline \\[-1.8ex] 
-	\end{tabular} 
-	\label{area_comp} 
-\end{table} 
+\begin{figure}
+	\includegraphics[width=\textwidth]{tukey_lmer_site}
+	\caption{Pairwise p-values of a Tukey HSD test comparing geographic zones in the best model predicting variation in bark area damaged by \textit{H. abietis}. Geographic zone 1 is significantly (p\textless{}0.05) different from zones 6 and 4. P-values for all other comparisons outwith Geographic zone 1 are close to 1.}
+\end{figure}
 
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu% Date and time: Mon, Aug 05, 2019 - 11:16:03\begin{table}[!htbp]   \caption{}   \label{} 
-\centering\begin{tabular}{@{\extracolsep{5pt}} llS[table-format=3.2]S[table-format=3.2]S[table-format=3.2]S[table-format=3.2]} \\[-1.8ex]\hline \hline \\[-1.8ex] Fixed eff. & Random eff. & {AIC} & {logLik} & {R\textsuperscript{2}\textsubscript{m}} & {R\textsuperscript{2}\textsubscript{c}} \\ \hline \\[-1.8ex] Geog. zone & Site & 719.471 & -351.735 & 0.056 & 0.056 \\ NA & NA & 721.787 & -358.893 & 0 & 0 \\ NA & Geog. zone / Site & 722.193 & -357.096 & 0 & 0.033 \\ NA & Site / Family & 724.929 & -358.464 & 0 & 0.026 \\ Site & Geog. zone & 736.127 & -345.063 & 0.106 & 0.106 \\ Site & Family & 736.127 & -345.063 & 0.106 & 0.106 \\ Site & Geog. zone + Family & 738.127 & -345.063 & 0.106 & 0.106 \\ Family & Geog. zone & 810.131 & -256.066 & 0.565 & 0.565 \\ Family & Geog. zone / Site & 812.131 & -256.066 & 0.565 & 0.565 \\ Geog. zone & Site / Family & {NA} & {NA} & 0.056 & 0.056 \\ \hline \\[-1.8ex] \end{tabular} \end{table} 
-
-\todo{How strong was the effect of seed population?}
-
-\todo{Look at which populations are the most different}
+\input{include/lmer_aic_comp.tex}
 
 \subsection*{Population level spatial patterns}
 
@@ -236,7 +224,7 @@ There was a weak positive but significant effect of latitude on the total bark a
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{bubble_map}	
-	\caption{Map of study sites}
+	\caption{Map of study sites with bubbles coloured according to Geographic zone and relatively sized according to the total bark area damaged for all 32 saplings per site.}
 \end{figure}
 
 \begin{figure}
@@ -257,7 +245,7 @@ Variance in bark area damaged was high in all seed populations. The highest bein
 
 \section*{Discussion}
 
-The model selection process determined that there was an effect of seed population on the amount of weevil damage found on damaged saplings, but could not account for variation in the probability that a sapling became damaged. Linear models demonstrated that there was a general latitudinal effect on sapling damaged area, with saplings with parents at higher latitudes typically experiencing higher levels of damage, but this had much less effect than population itself. Studies on the distribution and life cycle of \textit{H. abietis} have shown that life cycle length is strongly linked with mean temperature in the summer months, with higher temperatures leading to a short life cycle and therefore higher numbers of pine weevils where infestations occur \citep{Leather1999}. \textit{H. abietis} abundance reduces with latitude in Scotland \citep{Barredo2015}. The latitudinal effect may therefore be a result of adaptation to resist \textit{H. abietis} damage. \textit{P. sylvestris} leaves and bark have resin canals which act to deter herbivores \citep{}. While it has not been explicitly tested for \textit{H abietis}, other studies involving \todo{SOME INSECTS} have found a negative correlation between resin canal density in leaves and feeding behaviour for \textit{P. sylvestris}. \citet{} found that \textit{H. abietis} was discouraged from eating \todo{tree name} needles with higher resin canal concentration and cuticle thickness.
+The model selection process determined that there was an effect of seed population on the area of weevil damage found on damaged saplings, but could not account for variation in the probability that a sapling became damaged initially. Linear models demonstrated that there was a general latitudinal effect on sapling damaged area. Saplings with parents at higher latitudes typically experienced higher levels of damage, but this had a much weaker effect than population itself. Studies on the distribution and life cycle of \textit{H. abietis} have shown that life cycle length is strongly linked with mean temperature in the summer months, with higher temperatures leading to a short life cycle and therefore higher numbers of pine weevils where infestations occur \citep{Leather1999}. \textit{H. abietis} abundance reduces with latitude in Scotland \citep{Barredo2015}. The latitudinal effect may therefore be a result of adaptation to resist \textit{H. abietis} damage. \textit{P. sylvestris} leaves and bark have resin canals which act to deter herbivores \citep{}. While it has not been explicitly tested for \textit{H abietis}, other studies involving \todo{SOME INSECTS} have found a negative correlation between resin canal density in leaves and feeding behaviour for \textit{P. sylvestris}. \citet{} found that \textit{H. abietis} was discouraged from eating \todo{tree name} needles with higher resin canal concentration and cuticle thickness.
 
 Within population variability was high. \todo{This is expected given the high gene flow}. The effect of population was higher however.
 
@@ -273,10 +261,3 @@ This study sought to test whether adaptive variation for resistance to the large
 %-----------------------------------------------
 \end{document}
 %-----------------------------------------------
-
-
-% Think about framing the question in terms of identifying conservation priorities for genetically distinct populations which don't have much resistance to the weevils
-% Alright idea, but natural population of scots pine really don't have that much damage from pine weevils, mainly because there aren't an abundance of stumps and young trees close together in natural populations.
-
-
-%Gershenzon, J., Croteau, R., 1991. Terpenoids. In: Rosenthal, G.A., Berenbaum, M.R. (Eds.), Herbivores, their Interactions with Secondary Plant Metabolites. Aca- demic Press, New York, pp. 165–219.

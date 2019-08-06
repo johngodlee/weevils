@@ -11,10 +11,11 @@ citation("MuMIn")
 
 # Remove old crap
 rm(list=ls())
-dev.off()
+#dev.off()
 
 # Set working directory to the location of the source file
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+setwd("~/google_drive/postgrad/extra_projects/weevils/analysis")
 
 # Packages
 library(dplyr)
@@ -34,6 +35,7 @@ library(stargazer)
 library(ggeffects)
 library(glmmTMB)
 library(emmeans)
+library(svglite)
 
 
 # Import data 
@@ -156,8 +158,7 @@ region_map <- ggplotGrob(
     theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
 )
 
-png(filename = "../paper/img/site_map.png", width = 1000, height = 1000)
-ggplot() + 
+site_map <- ggplot() + 
   annotation_custom(grob = region_map,
     xmin = -2, xmax = +0.5,
     ymin = 55.5, ymax = 57.5) + 
@@ -190,7 +191,8 @@ ggplot() +
     label = "CG",
     hjust = -0.8,
     data = cg_loc)
-dev.off()
+
+ggsave(file="../paper/img/site_map.pdf", plot=site_map, width=10, height=8)
 
 # Plot map of sites with points sized by mm^2 damage found
 site_summ <- damage_full %>%
@@ -199,7 +201,7 @@ site_summ <- damage_full %>%
   right_join(.,site_loc, by = c("site_code" = "site_code")) %>%
   mutate(geog_zone = as.character(geog_zone))
 
-ggplot() + 
+bubble_map <- ggplot() + 
   geom_polygon(aes(x = long, y = lat, group = group), 
     colour = "black", fill = NA,
     data = scotland_fort, alpha = 1) + 
@@ -220,6 +222,8 @@ ggplot() +
   guides(size=guide_legend(title=expression(paste("Total bark\ndamage (mm"^2,")")))) + 
   scale_fill_manual(values = geog_zone_pal)
 
+ggsave(file="../paper/img/bubble_map.pdf", plot=bubble_map, width=10, height=8)
+
 # Plot map of sites with points sized by how many trees were attacked
 site_summ_binom <- damage_full %>%
   group_by(site_code) %>%
@@ -227,7 +231,7 @@ site_summ_binom <- damage_full %>%
   right_join(.,site_loc, by = c("site_code" = "site_code")) %>%
   mutate(geog_zone = as.character(geog_zone))
 
-ggplot() + 
+bubble_freq_map <- ggplot() + 
   geom_polygon(aes(x = long, y = lat, group = group), 
     colour = "black", fill = NA,
     data = scotland_fort, alpha = 1) + 
@@ -248,9 +252,12 @@ ggplot() +
   guides(size=guide_legend(title="Saplings damaged")) + 
   scale_fill_manual(values = geog_zone_pal)
 
+ggsave(file="../paper/img/bubble_freq_map.pdf", plot=bubble_freq_map, width=10, height=8)
+
+
 # Latitudinal and longitudinal variation in damage
 
-ggplot(damage_nozero_dam, aes(x = dec_latitude, y = log(mm2_damage))) + 
+latitude <- ggplot(damage_nozero_dam, aes(x = dec_latitude, y = log(mm2_damage))) + 
   geom_point(aes(colour = geog_zone)) + 
   stat_smooth(method = "lm", colour = "black") + 
   theme_classic() +
@@ -258,13 +265,21 @@ ggplot(damage_nozero_dam, aes(x = dec_latitude, y = log(mm2_damage))) +
   guides(colour=guide_legend(title="Geog. zone", override.aes = list(size = 5))) + 
   scale_colour_manual(values = geog_zone_pal)
 
+ggsave(file="../paper/img/latitude.pdf", plot=latitude, width=10, height=8)
 
-ggplot(damage_full, aes(x = dec_longitude, y = mm2_damage)) + 
-  geom_point(aes(colour = site_name)) + 
-  stat_smooth(method = "lm")
+longitude <- ggplot(damage_full, aes(x = dec_longitude, y = mm2_damage)) + 
+  geom_point(aes(colour = geog_zone)) + 
+  stat_smooth(method = "lm", colour = "black") + 
+  theme_classic() +
+  labs(x = "Longitude", y = expression(paste("Bark damage (mm"^2,")"))) + 
+  guides(colour=guide_legend(title="Geog. zone", override.aes = list(size = 5))) + 
+  scale_colour_manual(values = geog_zone_pal)
+
+ggsave(file="../paper/img/longitude.pdf", plot=longitude, width=10, height=8)
+
 
 # Plot distribution of Growing Degree Days across seed collection sites
-site_loc %>%
+deg_days <- site_loc %>%
   group_by(seed_zone) %>%
   summarise(mean_growing_deg_days_c = mean(growing_deg_days_c),
     sd_growing_deg_days_c = sd(growing_deg_days_c)) %>%
@@ -280,6 +295,9 @@ site_loc %>%
     y = "Mean growing degree days (C)") + 
   theme_classic() +
   theme(legend.position = "none")
+
+ggsave(file="../paper/img/deg_days.pdf", plot=deg_days, width=10, height=8)
+
 
 # Minimum and Maximum Growing Degree Days across seed collection sites
 min(site_loc$growing_deg_days_c)
@@ -339,7 +357,7 @@ site_code_weights <- site_code_weights[order(site_code_weights$site_code), ]
 E(dam_graph)$weight <- c(region_weights$damage, geog_zone_weights$damage, site_code_weights$damage)
 
 # Plot graph
-ggraph(dam_graph, layout = 'dendrogram', circular = FALSE) + 
+dendro <- ggraph(dam_graph, layout = 'dendrogram', circular = FALSE) + 
   geom_edge_diagonal(aes(width = weight)) +
   geom_node_point() +
   geom_node_label(position = "identity", aes(label = name), label.padding = unit(0.22, "lines")) + 
@@ -352,13 +370,16 @@ ggraph(dam_graph, layout = 'dendrogram', circular = FALSE) +
   geom_text(aes(x = 24, y = 0), label = "Site", hjust = "center") + 
   theme(legend.position = "none")
 
+ggsave(file="../paper/img/dendro.pdf", plot=dendro, width=10, height=8)
+
+
 # Bar chart number with number of saplings damaged
 
 damage_nozero_dam_order_bar <- damage_nozero_dam %>%
   group_by(site_code, geog_zone) %>%
   summarise(n = n())
 
-ggplot(damage_nozero_dam_order_bar, 
+barchart <- ggplot(damage_nozero_dam_order_bar, 
   aes(x = site_code, y = n, fill = geog_zone)) + 
   geom_bar(stat = "identity", width = 1, 
     colour = "black") + 
@@ -375,6 +396,9 @@ ggplot(damage_nozero_dam_order_bar,
     strip.placement = "outside", 
     strip.text = element_text(size = 12),
     legend.position = "none")
+
+ggsave(file="../paper/img/barchart.pdf", plot=barchart, width=10, height=8)
+
   
 # mm2_damage boxplot for saplings with lesions
 
@@ -385,7 +409,7 @@ damage_nozero_dam <- damage_nozero_dam %>%
       "GA", "GC", "AB", "AC", "BB", "GD",
       "GT", "RM", "CG", "GL", "BW", "CC", "CR", "MG")))
 
-ggplot(damage_nozero_dam, 
+boxplot <- ggplot(damage_nozero_dam, 
   aes(x = site_code, y = log(mm2_damage), fill = geog_zone)) + 
   geom_boxplot() + 
   labs(x = "Population and Geog. zone",
@@ -404,11 +428,14 @@ ggplot(damage_nozero_dam,
     strip.text = element_text(size = 12),
     legend.position = "none")
 
+ggsave(file="../paper/img/boxplot.pdf", plot=boxplot, width=10, height=8)
+
+
 # Plot a grid map of saplings and lesions to visualise spatial autocorrelation
 damage_zero <- damage_full %>%
   filter(mm2_damage == 0)
 
-ggplot(damage_full, aes(x = x_coord, y = y_coord)) +  
+sapling_map <- ggplot(damage_full, aes(x = x_coord, y = y_coord)) +  
   geom_point(data = damage_zero, aes(x = x_coord, y = y_coord), shape = 4, size = 1) + 
   geom_point(data = damage_nozero_dam, aes(x = x_coord, y = y_coord, colour = mm2_damage, size = mm2_damage)) + 
   scale_colour_viridis(name = expression(paste("Bark area damaged (mm"^2,")"))) + 
@@ -417,6 +444,9 @@ ggplot(damage_full, aes(x = x_coord, y = y_coord)) +
   theme_void() + 
   theme(legend.position = "bottom") +
   ylim(-0.2, 8.8)
+
+ggsave(file="../paper/img/sapling_map.pdf", plot=sapling_map, width=10, height=8)
+
 
 # Test for spatial auto-correlation with semi-variogram
 
@@ -449,10 +479,13 @@ gls_aic_comp <- data.frame(cor_struc = c("Exponential", "Gaussian", "Spherical",
   arrange(AIC) %>%
   dplyr::select(cor_struc, AIC, logLik, r2)
 
-names(gls_aic_comp) <- c("Correlation Structure", "AIC", "Log Likelihood", "Pseudo R2")
+names(gls_aic_comp) <- c("Cor. Struct.", "AIC", "logLik", "r2m")
 
 fileConn<-file("../paper/include/gls_aic_comp.tex")
-writeLines(stargazer(gls_aic_comp, summary = FALSE, rownames = FALSE), fileConn)
+writeLines(stargazer(gls_aic_comp, 
+  summary = FALSE, rownames = FALSE, label = "cor_table", 
+  table.placement = "H", digit.separate = 0), 
+  fileConn)
 close(fileConn)
 
 # Make variogram
@@ -480,7 +513,7 @@ mm2_dam_semivar_fit_fort <- variogramLine(mm2_dam_semivar_fit,
   maxdist = max(mm2_dam_semivar$dist))
 
 # Make semivariogram plot
-ggplot() + 
+semivariogram <- ggplot() + 
   geom_point(data = mm2_dam_semivar, aes(x = dist, y = gamma)) + 
   geom_line(data = mm2_dam_semivar_fit_fort, aes(x = dist, y = gamma)) + 
   theme_classic() + 
@@ -488,6 +521,9 @@ ggplot() +
   geom_vline(aes(xintercept = 5), linetype = 2) + 
   geom_hline(aes(yintercept = max(mm2_dam_semivar_fit_fort$gamma)), linetype = 2) + 
   ylim(0.8, 1.3)
+
+ggsave(file="../paper/img/variogram.pdf", plot=semivariogram, width=10, height=8)
+
 
 ##' Semivariogram indicates that there isn't 
 ##' any great amount of spatial autocorrelation
@@ -557,14 +593,53 @@ binom_lmer_aic_comp <- data.frame(
 binom_lmer_aic_comp
 
 fileConn<-file("../paper/include/binom_lmer_aic_comp.tex")
-writeLines(stargazer(binom_lmer_aic_comp, summary = FALSE, rownames = FALSE), fileConn)
+writeLines(stargazer(binom_lmer_aic_comp, 
+  summary = FALSE, rownames = FALSE, label = "binom_comp", digit.separate = 0), fileConn)
 close(fileConn)
 
 # Plot of predicted probabilities of `has_damage`
-geog_zone_predict_binom <- ggpredict(geog_zone_no_family_binom, c("geog_zone"))
+site_predict_binom <- ggpredict(site_rfamily_binom, c("site_name"))
+site_predict_binom$x <- as.factor(site_predict_binom$x)
+site_predict_binom <- data.frame(site_predict_binom)
+site_predict_binom$x <- sort(unique(damage_full$site_code))
+site_predict_binom$geog_zone <- damage_full %>% 
+  group_by(site_code) %>% 
+  summarise(geog_zone = first(geog_zone)) %>% 
+  pull(geog_zone)
+
+
+pred_binom_site <- ggplot() + 
+  geom_point(data = site_predict_binom, 
+    aes(x = x, y = predicted, colour = geog_zone),
+    size = 3) + 
+  geom_errorbar(data = site_predict_binom, 
+    aes(x = x, ymin = conf.low, ymax = conf.high, colour = geog_zone),
+    width = 0.5) + 
+  facet_grid(~geog_zone, 
+    scales = "free_x", 
+    space = "free_x",
+    switch = "x") + 
+  theme_classic() + 
+  theme(legend.position = "none") + 
+  labs(x = "Site", y = "Predicted probability of damage") + 
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), 
+    breaks = c(seq(from = 0, to = 1, by = 0.1)), 
+    limits = c(0,0.73)) + 
+  theme(panel.spacing = unit(0, "lines"), 
+    strip.background = element_blank(),
+    strip.placement = "outside", 
+    strip.text = element_text(size = 12),
+    legend.position = "none") + 
+  scale_fill_manual(values = geog_zone_pal) + 
+  scale_colour_manual(values = geog_zone_pal)
+
+ggsave(file="../paper/img/pred_binom_site.pdf", plot=pred_binom_site, width=10, height=8)
+
+
+geog_zone_predict_binom <- ggpredict(geog_rsite_binom, c("geog_zone"))
 geog_zone_predict_binom$x <- as.character(geog_zone_predict_binom$x)
 
-ggplot() + 
+pred_binom_geog <- ggplot() + 
   geom_point(data = geog_zone_predict_binom, 
     aes(x = x, y = predicted, colour = x),
     size = 3) + 
@@ -578,6 +653,36 @@ ggplot() +
     breaks = c(seq(from = 0, to = 0.6, by = 0.1)), 
     limits = c(0,0.6)) + 
   scale_colour_manual(values = geog_zone_pal)
+
+ggsave(file="../paper/img/pred_binom_geog.pdf", plot=pred_binom_geog, width=10, height=8)
+
+
+# Tukeys's HSD test to see which groups are different.
+
+# Geog. zone
+tukey_geog_zone_no_family_lmer <- emmeans(geog_rsite_binom, "geog_zone")
+
+tukey_lmer_geog <- pwpp(tukey_geog_zone_no_family_lmer, values = TRUE) + 
+  theme_classic() + 
+  scale_colour_manual(values = geog_zone_pal) + 
+  ylab("Geog. zone") + 
+  theme(panel.grid.major.y = element_line(colour="#E0E0E0"))
+
+ggsave(file="../paper/img/tukey_lmer_geog.pdf", plot=tukey_lmer_geog, width=10, height=8)
+
+
+# Site
+tukey_site_lmer <- emmeans(site_rfamily_binom, "site_name")
+
+tukey_lmer_site <- pwpp(tukey_site_lmer, values = TRUE) + 
+  theme_classic() +
+  ylab("Geog. zone") + 
+  theme(panel.grid.major.y = element_line(colour="#E0E0E0")) + 
+  scale_x_continuous(breaks = c(0.05, 0.1, 0.5, 1), limits = c(0,1))
+
+  
+  
+ggsave(file="../paper/img/tukey_lmer_site.pdf", plot=tukey_lmer_site, width=10, height=8)
 
 # Mixed effects model - Non-zero glm
 
@@ -620,17 +725,51 @@ lmer_aic_comp <- data.frame(
   arrange(AIC)
 
 fileConn<-file("../paper/include/lmer_aic_comp.tex")
-writeLines(stargazer(lmer_aic_comp, summary = FALSE, rownames = FALSE), fileConn)
+writeLines(stargazer(lmer_aic_comp, 
+  summary = FALSE, rownames = FALSE,
+  label = "lmer_comp", digit.separate = 0), fileConn)
 close(fileConn)
 
+# Plots of predicted values
+site_predict_lmer <- ggpredict(site_rfamily_lmer, c("site_name"))
+site_predict_lmer$x <- as.factor(site_predict_lmer$x)
+site_predict_lmer <- data.frame(site_predict_lmer)
+site_predict_lmer$x <- sort(unique(damage_full$site_code))
+site_predict_lmer$geog_zone <- damage_full %>% 
+  group_by(site_code) %>% 
+  summarise(geog_zone = first(geog_zone)) %>% 
+  pull(geog_zone)
 
-summary(geog_zone_no_family_lmer)
+pred_lmer_site <- ggplot() + 
+  geom_point(data = site_predict_lmer, 
+    aes(x = x, y = predicted, colour = geog_zone),
+    size = 3) + 
+  geom_errorbar(data = site_predict_lmer, 
+    aes(x = x, ymin = conf.low, ymax = conf.high, colour = geog_zone),
+    width = 0.5) + 
+  facet_grid(~geog_zone, 
+    scales = "free_x", 
+    space = "free_x",
+    switch = "x") + 
+  theme_classic() + 
+  theme(legend.position = "none") + 
+  labs(x = "Geog. zone and Seed population", y = expression(paste("Predicted bark damage (mm"^2,")"))) + 
+  theme(panel.spacing = unit(0, "lines"), 
+    strip.background = element_blank(),
+    strip.placement = "outside", 
+    strip.text = element_text(size = 12),
+    legend.position = "none") + 
+  scale_fill_manual(values = geog_zone_pal) + 
+  scale_colour_manual(values = geog_zone_pal)
 
-# Plot of predicted values
-geog_zone_predict_lmer <- ggpredict(geog_zone_no_family_lmer, c("geog_zone"))
+ggsave(file="../paper/img/pred_lmer_site.pdf", plot=pred_lmer_site, width=10, height=8)
+
+
+geog_zone_predict_lmer <- ggpredict(geog_rsite_lmer, c("geog_zone"))
 geog_zone_predict_lmer$x <- as.character(geog_zone_predict_lmer$x)
 
-ggplot() + 
+
+pred_lmer_geog <- ggplot() + 
   geom_point(data = geog_zone_predict_lmer, 
     aes(x = x, y = predicted, colour = x),
     size = 3) + 
@@ -642,25 +781,31 @@ ggplot() +
   labs(x = "Geog. zone", y = expression(paste("Predicted bark damage (mm"^2,")"))) + 
   scale_colour_manual(values = geog_zone_pal)
 
+ggsave(file="../paper/img/pred_lmer_geog.pdf", plot=pred_lmer_geog, width=10, height=8)
 
 # Tukeys's HSD test to see which groups are different.
 
 # Family
-tukey_geog_zone_no_family_lmer <- emmeans(geog_zone_no_family_lmer, "geog_zone")
+tukey_geog_zone_no_family_lmer <- emmeans(geog_rsite_lmer, "geog_zone")
 
-pwpp(tukey_geog_zone_no_family_lmer, values = TRUE) + 
+tukey_lmer_geog <- pwpp(tukey_geog_zone_no_family_lmer, values = TRUE) + 
   theme_classic() + 
   scale_colour_manual(values = geog_zone_pal) + 
   ylab("Geog. zone") + 
   theme(panel.grid.major.y = element_line(colour="#E0E0E0"))
 
-# Site
-tukey_site_lmer <- emmeans(site_lmer, "site_name")
+ggsave(file="../paper/img/tukey_lmer_geog.pdf", plot=tukey_lmer_geog, width=10, height=8)
 
-pwpp(tukey_site_lmer, values = TRUE) + 
+
+# Site
+tukey_site_lmer <- emmeans(site_rfamily_lmer, "site_name")
+
+tukey_lmer_site <- pwpp(tukey_site_lmer, values = TRUE) + 
   theme_classic() +
   ylab("Geog. zone") + 
   theme(panel.grid.major.y = element_line(colour="#E0E0E0"))
+
+ggsave(file="../paper/img/tukey_lmer_site.pdf", plot=tukey_lmer_site, width=10, height=8)
 
 # Linear mixed effects model of latitude and longitude against total damage
 
@@ -679,7 +824,7 @@ r.squaredGLMM(dec_lon_lmer)
 dec_lat_predict <- ggpredict(dec_lat_lmer, terms = c("dec_latitude"), type = "fe")
 
 # Plot predicted values by fixed effect
-ggplot() + 
+pred_lat <- ggplot() + 
   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high),
     data = dec_lat_predict, alpha = 0.3) + 
   geom_line(data = dec_lat_predict, 
@@ -688,4 +833,5 @@ ggplot() +
   theme(legend.position = "none") + 
   labs(x = "Latitude", y = expression(paste("Predicted bark damage (mm"^2,")"))) 
 
+ggsave(file="../paper/img/pred_lat.pdf", plot=pred_lat, width=10, height=8)
 
