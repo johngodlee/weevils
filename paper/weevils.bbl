@@ -52,6 +52,13 @@ Bolker, B.~M., Brooks, M.~E., Clark, C.~J., Geange, S.~W., Poulsen, J.~R.,
   for ecology and evolution', {\em Trends in Ecology and Evolution} {\bf
   24}(3),~127--135.
 
+\harvarditem[Boucher et~al.]{Boucher, Lavall\'{e}e \harvardand\
+  Mauffette}{2001}{Boucher2001}
+Boucher, D., Lavall\'{e}e, R. \harvardand\ Mauffette, Y.  \harvardyearleft
+  2001\harvardyearright , `Biological performance of the white pine weevil in
+  relation to the anatomy of the resin canal system of four different host
+  species', {\em Canadian Journal of Forest Research} {\bf 31},~2035--2041.
+
 \harvarditem[Brooks et~al.]{Brooks, Kristensen, {van Benthem}, Magnusson, Berg,
   Nielsen, Skaug, Maechler \harvardand\ Bolker}{2017}{glmmTMB}
 Brooks, M.~E., Kristensen, K., {van Benthem}, K.~J., Magnusson, A., Berg,
@@ -121,6 +128,13 @@ Eyles, A., Bonello, P., Ganley, R. \harvardand\ Mohammed, C.  \harvardyearleft
   2009\harvardyearright , `Induced resistance to pests and pathogens in trees',
   {\em New Phytologist} {\bf 185},~893--908.
 
+\harvarditem[Farrell et~al.]{Farrell, Dussourd \harvardand\
+  Mitter}{1991}{Farrell1991}
+Farrell, B.~D., Dussourd, D.~E. \harvardand\ Mitter, C.  \harvardyearleft
+  1991\harvardyearright , `Escalation of plant defense: do latex and resin
+  canals spur plant diversification?', {\em The American Naturalist} {\bf
+  138}(4),~881--900.
+
 \harvarditem{{\em Forestry Statistics 2018: A compendium of statistics about
   woodland, forestry and primary wood processing in the United
   Kingdom}}{2018}{ForestryStatistics2018}
@@ -148,6 +162,11 @@ Gonz\'{a}lez-Diaz, P., Cavers, S., Iason, G.~R., Booth, A., Russell, J.
   \harvardand\ Jump, A.~S.  \harvardyearleft 2018\harvardyearright , `Weak
   isolation by distance and geographic diversity gradients persist in scottish
   relict pine forest', {\em iForest} {\bf 11},~449--458.
+
+\harvarditem{Guenther}{1997}{Guenther1997}
+Guenther, A.  \harvardyearleft 1997\harvardyearright , `Seasonal and spatial
+  variations in natural volatile organic compound emissions', {\em Ecological
+  Applications} {\bf 7}(1),~34--45.
 
 \harvarditem[Heijari et~al.]{Heijari, Blande \harvardand\
   Holopainen}{2011}{Heijari2011}
@@ -205,6 +224,11 @@ Kivim\"{a}enp\"{a}\"{a}, M., Magsarjav, N., Ghimire, R., Markkanen, J.,
   2012\harvardyearright , `Influence of tree provenance on biogenic voc
   emissions of scots pine (\textit{Pinus sylvestris}) stumps', {\em Atmospheric
   environment} {\bf 60},~477--485.
+
+\harvarditem{L.}{2019}{Russell2019}
+L., R.  \harvardyearleft 2019\harvardyearright , {\em emmeans: Estimated
+  Marginal Means, aka Least-Squares Means}.
+\newblock R package version 1.3.5.1.
 
 \harvarditem[Leather et~al.]{Leather, Day \harvardand\
   Salisbury}{1999}{Leather1999}
@@ -360,6 +384,13 @@ Toivonen, R. \harvardand\ Viiri, H.  \harvardyearleft 2006\harvardyearright ,
 Trapp, S. \harvardand\ Croteau, R.  \harvardyearleft 2001\harvardyearright ,
   `Defensive resin biosynthesis in conifers', {\em Annual Review of Plant
   Physiology and Plant Molecular Biology} {\bf 52},~689--724.
+
+\harvarditem[Wainhouse et~al.]{Wainhouse, Inward \harvardand\
+  Morgan}{2014}{Wainhouse2014}
+Wainhouse, D., Inward, D. J.~G. \harvardand\ Morgan, G.  \harvardyearleft
+  2014\harvardyearright , `Modelling geographical variation in voltinism of
+  \textit{Hylobius abietis} under climate change and implications for
+  management', {\em Agricultural and Forest Entomology} {\bf 16},~136--146.
 
 \harvarditem[Wallertz et~al.]{Wallertz, Nordenhem \harvardand\
   Nordlander}{2014}{Wallertz2014}
