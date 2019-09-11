@@ -5,7 +5,7 @@
 
 __Model types that deal with zeroes:__
 
-* Zero inflated models (Zuue et al. 2010)
+* Zero inflated models (Zuur et al. 2010)
 * Quasi-Poisson GLM
 * Negative Binomial GLM
 * Hurdle (two-stage) models
