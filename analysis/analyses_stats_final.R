@@ -74,7 +74,6 @@ damage_nozero_dam <- damage_full %>%
 # Create column on whether damage is present
 damage_full$has_damage <- ifelse(damage_full$curr_damage > 0, 1, 0)
 
-
 # Test for spatial auto-correlation with semi-variogram
 
 # GLS model comparison with different auto-correlation structures
