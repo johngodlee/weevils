@@ -16,7 +16,7 @@ rm(list=ls())
 
 # Set working directory to the location of the source file
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd("~/google_drive/postgrad/extra_projects/weevils/analysis")
+# setwd("~/git_proj/weevils/analysis")
 
 # Packages
 library(dplyr)
