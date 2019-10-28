@@ -37,6 +37,10 @@ sed -i 's/r2m/R\\textsuperscript{2}\\textsubscript{m}/g' manuscript/include/*.te
 
 sed -i 's/r2c/R\\textsuperscript{2}\\textsubscript{c}/g' manuscript/include/*.tex
 
+# Crop images
+convert analysis/damage_high.jpg -gravity East -chop 120x0 manuscript/img/damage_high_crop.jpg
+convert analysis/damage_low.jpg -gravity South -chop 0x60 manuscript/img/damage_low_crop.jpg
+
 # Run LaTeX and BibTeX
 cd manuscript
 BASE="${1%.*}"

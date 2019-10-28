@@ -128,18 +128,12 @@ We used a linear mixed effects model, using only saplings where damage had occur
 
 A post-hoc linear mixed effects model investigated the effect of latitude of seed collection Site on the area of damaged bark, with nested random intercept effects of maternal line within Site. Predicted values of this model were generated and used to assess the effect of latitude on damaged bark area. 
 
-Spatial autocorrelation may have been present within the Common Garden, with some damaged saplings acting as olfactory beacons to attract more\textit{H. abietis} to the area. This potential effect was investigated using semi-variograms of model residuals for the best-fitting generalised linear mixed effects models. Semi-variograms of the raw damaged area mm\textsuperscript{2} suggested that spatial autocorrelation between saplings was negligible within the Common Garden and so spatial autocorrelation structures were not included in generalised linear mixed effects models.
-
-\begin{figure}[H]
-	\includegraphics[width=\textwidth]{sapling_map}
-	\caption{Schematic diagram of sapling relative position within the Common Garden, with sapling points coloured and sized according to the area of bark damaged. The distance between saplings is 3 m in both the X and Y directions.}
-	\label{sapling_map}
-\end{figure}
+Spatial autocorrelation may have been present within the Common Garden, with some damaged saplings acting as olfactory beacons to attract more\textit{H. abietis} to the area. This potential effect was investigated using semi-variograms of model residuals for the best-fitting generalised linear mixed effects models. Semi-variograms of the damaged area mm\textsuperscript{2} suggested that spatial autocorrelation between saplings was negligible within the Common Garden and so spatial autocorrelation structures were not included in generalised linear mixed effects models (Figure \ref{semivariogram_all}).
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{semivariogram_all}
 	\caption{Semivariograms showing spatial autocorrelation of damaged bark area according to distance between saplings. Horizontal dotted line denotes the sill of the semivariogram. Saplings further apart than this distance are predicted to not affect the degree of bark damage, or the probability of being damaged by \textit{H. abietis}, respectively.}
-	\label{semivariogram}
+	\label{semivariogram_all}
 \end{figure}
 
 \section*{Results}

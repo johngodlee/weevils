@@ -1,0 +1,59 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: weevils.aux
+The style file: agsmnourl.bst
+Database file #1: weevils.bib
+Warning--entry type for "Willoughby2004" isn't style-file defined
+--line 61 of file weevils.bib
+Warning--entry type for "Willoughby2017" isn't style-file defined
+--line 94 of file weevils.bib
+Warning--entry type for "ForestryStatistics2018" isn't style-file defined
+--line 114 of file weevils.bib
+Warning--entry type for "Evans2015" isn't style-file defined
+--line 279 of file weevils.bib
+Warning--entry type for "Heritage2001" isn't style-file defined
+--line 384 of file weevils.bib
+Warning--entry type for "Cheffings2005" isn't style-file defined
+--line 591 of file weevils.bib
+You've used 68 entries,
+            2878 wiz_defined-function locations,
+            1097 strings with 19759 characters,
+and the built_in function-call counts, 432010 in all, are:
+= -- 71559
+> -- 5853
+< -- 0
++ -- 35247
+- -- 1817
+* -- 38698
+:= -- 84350
+add.period$ -- 69
+call.type$ -- 68
+change.case$ -- 948
+chr.to.int$ -- 68
+cite$ -- 68
+duplicate$ -- 1058
+empty$ -- 2228
+format.name$ -- 2044
+if$ -- 77645
+int.to.chr$ -- 5
+int.to.str$ -- 0
+missing$ -- 57
+newline$ -- 208
+num.names$ -- 727
+pop$ -- 220
+preamble$ -- 1
+purify$ -- 1020
+quote$ -- 0
+skip$ -- 852
+stack$ -- 0
+substring$ -- 103339
+swap$ -- 191
+text.length$ -- 952
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 272
+warning$ -- 0
+while$ -- 1540
+width$ -- 0
+write$ -- 906
+(There were 6 warnings)
