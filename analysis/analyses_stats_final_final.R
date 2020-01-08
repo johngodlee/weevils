@@ -34,11 +34,12 @@ library(nlme)
 library(automap)
 library(gridExtra)
 library(gstat)
+library(tidyr)
 
 # Import data ----
 damage <- read.csv("data/damage_new.csv")
-
 site_loc <- read.csv("data/site_loc.csv")
+chem <- read.csv("data/chem.csv")
 
 geog_zone_pal <- brewer.pal(n = length(unique(site_loc$geog_zone)), name = "Set2")
 geog_zone_pal[6] <- "#C42D2D"
@@ -55,13 +56,14 @@ names(damage_full) <- c("site_name", "seed_zone", "geog_zone", "site_code",
   "family", "individual", "field_code", 
   "x_coord", "y_coord", "xy_coord", 
   "block", "curr_damage", "mm2_damage")
+damage_full <- left_join(damage_full, chem, by = c("field_code" = "tree"))
 
 damage_full$geog_zone <- as.character(damage_full$geog_zone)
 damage_full$family <- as.character(damage_full$family)
 damage_full$site_name <- as.character(damage_full$site_name)
 damage_full$big_region <- as.character(damage_full$big_region)
 
-site_loc$geog_zone <-   as.character(site_loc$geog_zone)
+site_loc$geog_zone <- as.character(site_loc$geog_zone)
 
 # Create a dataset with no zero values for current damage
 damage_nozero_dam <- damage_full %>%
@@ -741,3 +743,41 @@ grid.arrange(
   semivariogram_geog_lmer + ggtitle("Geog. zone best damage model"),
   nrow = 2)
 dev.off()
+
+
+# Models of chemical fingerprint vs. damage ----
+
+# Create dataset of chem data only
+damage_chem <- damage_nozero_dam[,c(23:87, 89:101)] %>% 
+  gather(key = "chem", value = "value")
+
+damage_chem$mm2_damage <- rep(damage_nozero_dam$mm2_damage, 
+  times = length(damage_chem))
+
+all_biochem <- ggplot(damage_chem, aes(x = log(mm2_damage), y = value)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(~chem, scales = "free_y")
+
+pdf("~/Desktop/test.pdf", width = 15, height = 15)
+all_biochem
+dev.off()
+
+biochem_single <- function(name){
+  name <- enquo(name)
+  ggplot(data = damage_nozero_dam, 
+    aes(x = log(mm2_damage), y = !!name)) + 
+    geom_point() + 
+    geom_smooth(method = "lm")
+}
+
+biochem_single(P_all)
+biochem_single(TU_all)
+biochem_single(mois_per)
+biochem_single(dry_mass_per)
+biochem_single(a_humulene)
+biochem_single(phen_mgg)
+biochem_single(ox_phen_mgg)
+biochem_single(fructose_mgg)
+biochem_single(sugar_mgg)
+
