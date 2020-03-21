@@ -15,29 +15,29 @@ library(readxl)
 library(dplyr)
 
 # Import data ----
-raw <- readxl::read_xlsx("~/data/Common Garden metabolomic NIR data_extract_for_JG.xlsx",
+raw <- readxl::read_xlsx("data/Common Garden metabolomic NIR data_extract_for_JG.xlsx",
   sheet = 2)
 
 # Clean data ----
 
 tidy <- raw %>%
   dplyr::select(tree = Tree, 9:53, 58, 65, 68, 72,
-    a_pinene_m = `alpha pinene m`,
-    a_pinene_p = `alpha pinene p`,
-    camphene_m = `camphene m`,
-    camphene_p = `camphene p`,
-    b_pinene_m = `beta pinene m`,
-    b_pinene_p = `beta pinene p`,
-    carene_p_3 = `3 carene p`,
-    limonene_m = `limonene m`,
-    limonene_p = `limonene p`,
-    p_cymene = `p cymene`,
-    terpinolene = `Terpinolene`,
-    bornyl_acet_m = `bornyl acetate m`,
-    b_elemene = `beta elemene`,
-    t_caryophyllene = `trans caryophyllene`,
-    a_humulene = `alpha humulene`,
-    germacrene_d = `germacrene D`,
+    terp_a_pinene_m = `alpha pinene m`,
+    terp_a_pinene_p = `alpha pinene p`,
+    terp_camphene_m = `camphene m`,
+    terp_camphene_p = `camphene p`,
+    terp_b_pinene_m = `beta pinene m`,
+    terp_b_pinene_p = `beta pinene p`,
+    terp_carene_p_3 = `3 carene p`,
+    terp_limonene_m = `limonene m`,
+    terp_limonene_p = `limonene p`,
+    terp_p_cymene = `p cymene`,
+    terp_terpinolene = `Terpinolene`,
+    terp_bornyl_acet_m = `bornyl acetate m`,
+    terp_b_elemene = `beta elemene`,
+    terp_t_caryophyllene = `trans caryophyllene`,
+    terp_a_humulene = `alpha humulene`,
+    terp_germacrene_d = `germacrene D`,
     result = `Reults Type`,                                  
     N_perw = `N (%w)`,                                       
     C_perw = `C (%W)`,                                       
@@ -52,30 +52,21 @@ tidy <- raw %>%
     mois_per = `moisture %`
     )
 
+# Phenolics, named "P*"
 P_all <- tidy %>%
-  dplyr::select(starts_with("P", ignore.case = FALSE)) %>%
-  rowSums()
+  mutate_at(vars(starts_with("P", ignore.case = FALSE)),
+    .funs = list(std = ~(as.vector(scale(.,))))) %>%
+  dplyr::select(matches("^P.*_std$")) %>%
+  rowSums(na.rm = FALSE)
 
-# Terpenes are named where a standard was found and just "TU" where no standard
+# Terpenes are named where a standard was found and "TU*" where no standard
 TU_all <- tidy %>%
   dplyr::select(starts_with("TU", ignore.case = FALSE), 
-    "a_pinene_m",
-    "a_pinene_p",
-    "camphene_m",
-    "camphene_p",
-    "b_pinene_p",
-    "b_pinene_m",
-    "carene_p_3",
-    "limonene_m",
-    "p_cymene",
-    "limonene_p",
-    "terpinolene",
-    "bornyl_acet_m",
-    "b_elemene",
-    "t_caryophyllene",
-    "a_humulene",
-    "germacrene_d") %>%
-  rowSums()
+    starts_with("terp_", ignore.case = FALSE)) %>%
+  mutate_all(
+    .funs = list(std = ~(as.vector(scale(.))))) %>%
+  dplyr::select(ends_with("_std", ignore.case = FALSE)) %>%
+  rowSums(na.rm = FALSE)
 
 tidy$P_all <- P_all
 tidy$TU_all <- TU_all

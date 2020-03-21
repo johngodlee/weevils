@@ -3,10 +3,10 @@
 # Build the paper with analyses, images, tables, references etc.
 
 # Run analyses
-cd analysis
-Rscript analyses_plots.R
-Rscript analyses_stats_final_final.R
-cd ..
+# cd analysis
+# Rscript analyses_plots.R
+# Rscript analyses_stats_final_final.R
+# cd ..
 
 # Fix table snippets
 

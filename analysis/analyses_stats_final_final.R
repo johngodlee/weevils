@@ -35,6 +35,7 @@ library(automap)
 library(gridExtra)
 library(gstat)
 library(tidyr)
+library(vegan)
 
 # Import data ----
 damage <- read.csv("data/damage_new.csv")
@@ -64,6 +65,8 @@ damage_full$site_name <- as.character(damage_full$site_name)
 damage_full$big_region <- as.character(damage_full$big_region)
 
 site_loc$geog_zone <- as.character(site_loc$geog_zone)
+
+# damage_full$mm2_damage <- damage_full$mm2_damage / damage_full$dry_mass_per
 
 # Create a dataset with no zero values for current damage
 damage_nozero_dam <- damage_full %>%
@@ -754,19 +757,19 @@ damage_chem <- damage_nozero_dam[,c(23:87, 89:101)] %>%
 damage_chem$mm2_damage <- rep(damage_nozero_dam$mm2_damage, 
   times = length(damage_chem))
 
-all_biochem <- ggplot(damage_chem, aes(x = log(mm2_damage), y = value)) + 
+all_biochem <- ggplot(damage_chem, aes(x = value, y = log(mm2_damage))) + 
   geom_point() + 
   geom_smooth(method = "lm") + 
-  facet_wrap(~chem, scales = "free_y")
+  facet_wrap(~chem, scales = "free_x")
 
-pdf("~/Desktop/test.pdf", width = 15, height = 15)
+pdf("all_biochem_regression.pdf", width = 15, height = 15)
 all_biochem
 dev.off()
 
 biochem_single <- function(name){
   name <- enquo(name)
   ggplot(data = damage_nozero_dam, 
-    aes(x = log(mm2_damage), y = !!name)) + 
+    aes(x = !!name, y = log(mm2_damage))) + 
     geom_point() + 
     geom_smooth(method = "lm")
 }
@@ -780,4 +783,102 @@ biochem_single(phen_mgg)
 biochem_single(ox_phen_mgg)
 biochem_single(fructose_mgg)
 biochem_single(sugar_mgg)
+biochem_single(a_pinene_m)
+biochem_single(a_pinene_p)
 
+chem_corr_df <- damage_nozero_dam %>%
+  dplyr::select(starts_with("terp_", ignore.case = FALSE), 
+    starts_with("TU", ignore.case = FALSE), 
+    starts_with("P", ignore.case = FALSE), -TU_all, -P_all) %>%
+  na.omit() 
+
+pdf("/Users/johngodlee/Desktop/test.pdf", width = 25, height = 25)
+ggcorrplot(cor(chem_corr_df, use = "complete.obs"), 
+  type = "lower", 
+  lab = TRUE,
+  method = "square",
+  colors = c("blue", "white", "red"),
+  ggtheme = theme_classic, 
+  show.legend = FALSE,
+  outline.color = "black")
+dev.off()
+
+damage_nozero_dam_std <- damage_nozero_dam %>%
+  dplyr::select(mm2_damage, 
+    starts_with("P", ignore.case = FALSE),
+    starts_with("terp_", ignore.case = FALSE), 
+    starts_with("TU", ignore.case = FALSE), 
+    -P_all, -TU_all) %>%
+  mutate_at(vars(-one_of(c("mm2_damage"))),
+    .funs = list(std = ~(as.vector(scale(.,))))) %>%
+  dplyr::select(ends_with("_std"), mm2_damage)
+
+all_chem_lm <- lm(log(damage_nozero_dam$mm2_damage) ~ ., damage_nozero_dam_std)
+
+all_chem_lm_summ <- summary(all_chem_lm)
+
+all_chem_lm_summ_df <- data.frame(
+  var = row.names(all_chem_lm_summ$coefficients),
+  slope = all_chem_lm_summ$coefficients[, 1], 
+  std_err = all_chem_lm_summ$coefficients[, 2],
+  t_value = all_chem_lm_summ$coefficients[, 3],
+  p_value = all_chem_lm_summ$coefficients[, 4])
+  
+  
+all_chem_lm_summ_df %>% 
+  arrange(p_value) 
+
+# Run a Principal component analysis on the phenolics and terpenes to get principal components
+damage_nozero_dam_naomit <- damage_nozero_dam %>%
+  dplyr::select(starts_with("terp_", ignore.case = FALSE), 
+    starts_with("TU", ignore.case = FALSE),
+    starts_with("P", ignore.case = FALSE), 
+    site_name, seed_zone, geog_zone, site_code, big_region, 
+    dec_latitude, dec_longitude, family, field_code, mm2_damage,
+    sugar_mgg,
+    -TU_all, -P_all) %>%
+  na.omit()
+
+damage_nozero_dam_naomit[rowSums(is.na(damage_nozero_dam_naomit)) > 0,]
+
+damage_pca <- damage_nozero_dam_naomit %>%
+  dplyr::select(starts_with("terp_", ignore.case = FALSE), 
+    starts_with("TU", ignore.case = FALSE),
+    starts_with("P", ignore.case = FALSE)) %>%
+  rda(., scale = TRUE)
+
+# Principal component axes variance explained
+as.vector(damage_pca$CA$eig)/sum(damage_pca$CA$eig)
+barplot(as.vector(damage_pca$CA$eig)/sum(damage_pca$CA$eig)) 
+
+# How much explained by first two axes
+sum((as.vector(damage_pca$CA$eig)/sum(damage_pca$CA$eig))[1:3])
+##' 50% isn't great
+
+# Plot distribution of sites and "species" (chemicals)
+biplot(damage_pca)
+plot(damage_pca, display = "sites", type = "points")
+plot(damage_pca, display = "species", type = "text")
+
+# Extract site scores
+sitePCA <- damage_pca$CA$u 
+
+damage_nozero_dam_naomit$chem_pca_1 <- sitePCA[,1]
+damage_nozero_dam_naomit$chem_pca_2 <- sitePCA[,2]
+damage_nozero_dam_naomit$chem_pca_3 <- sitePCA[,3]
+
+# Run linear model of principal components against mm2 damage
+chem_pca_lm <- lm(log(mm2_damage) ~ chem_pca_1 + chem_pca_2 + chem_pca_3, 
+  data = damage_nozero_dam_naomit)
+
+summary(chem_pca_lm)
+
+# Linear model of alpha-pinene against mm2 damage
+pinene_m_lm <- lm(log(mm2_damage) ~ terp_a_pinene_m, data = damage_nozero_dam_naomit)
+
+summary(pinene_m_lm)
+
+# Linear model of sugar content against mm2 damage
+sugar_lm <- lm(log(mm2_damage) ~ sugar_mgg, data = damage_nozero_dam_naomit)
+
+summary(sugar_lm)
